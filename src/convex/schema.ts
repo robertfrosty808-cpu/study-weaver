@@ -1,4 +1,3 @@
-import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { Infer, v } from "convex/values";
 import { noteBlockValidator, notesMetaValidator, settingsValidator } from "./noteBlocks";
@@ -19,19 +18,16 @@ export type Role = Infer<typeof roleValidator>;
 
 const schema = defineSchema(
   {
-    // default auth tables using convex auth.
-    ...authTables, // do not remove or modify
-
-    // the users table is the default users table that is brought in by the authTables
+    // users table (kept compatible with the app's existing user fields)
     users: defineTable({
-      name: v.optional(v.string()), // name of the user. do not remove
-      image: v.optional(v.string()), // image of the user. do not remove
-      email: v.optional(v.string()), // email of the user. do not remove
-      emailVerificationTime: v.optional(v.number()), // email verification time. do not remove
-      isAnonymous: v.optional(v.boolean()), // is the user anonymous. do not remove
+      name: v.optional(v.string()),
+      image: v.optional(v.string()),
+      email: v.optional(v.string()),
+      emailVerificationTime: v.optional(v.number()),
+      isAnonymous: v.optional(v.boolean()),
 
-      role: v.optional(roleValidator), // role of the user. do not remove
-    }).index("email", ["email"]), // index for the email. do not remove or modify
+      role: v.optional(roleValidator),
+    }).index("email", ["email"]),
 
     noteProjects: defineTable({
       userId: v.id("users"),
@@ -60,6 +56,22 @@ const schema = defineSchema(
     })
       .index("by_user", ["userId"])
       .index("by_user_updated", ["userId", "updatedAt"]),
+
+    admins: defineTable({
+      email: v.string(),
+      hash: v.string(),
+      salt: v.string(),
+      createdAt: v.number(),
+    })
+      .index("by_email", ["email"]),
+
+    adminSessions: defineTable({
+      adminId: v.id("admins"),
+      token: v.string(),
+      expiresAt: v.number(),
+    })
+      .index("by_token", ["token"])
+      .index("by_admin", ["adminId"]),
   },
   {
     schemaValidation: false,

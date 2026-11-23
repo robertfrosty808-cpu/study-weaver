@@ -1,14 +1,12 @@
-import { Email } from "@convex-dev/auth/providers/Email";
-import axios from "axios";
 import { RandomReader, generateRandomString } from "@oslojs/crypto/random";
+import axios from "axios";
 
-export const emailOtp = Email({
+export const emailOtp = {
   id: "email-otp",
-  maxAge: 60 * 15, // 15 minutes
-  // This function can be asynchronous
+  maxAge: 60 * 15,
   async generateVerificationToken() {
     const random: RandomReader = {
-      read(bytes: Uint8Array) {
+      read(bytes) {
         crypto.getRandomValues(bytes);
       },
     };
@@ -26,12 +24,8 @@ export const emailOtp = Email({
       throw freebuffEmailOtpError(error);
     }
   },
-});
+};
 
-// Sign-in codes are sent by the Freebuff integrations gateway, which knows
-// this project by its own key: VLY_INTEGRATION_KEY, a Convex environment
-// variable set when the project was created. The email's wording is fixed by
-// the gateway.
 function freebuffEmailOtpUrl(): string {
   const base =
     process.env.VLY_INTEGRATION_BASE_URL || "https://integrations.vly.ai";
@@ -48,7 +42,6 @@ function freebuffEmailOtpHeaders(): Record<string, string> {
   return { Authorization: `Bearer ${key}` };
 }
 
-// Never stringify the whole request error: it carries the request headers.
 function freebuffEmailOtpError(error: unknown): Error {
   const response = (
     error as { response?: { status?: number; data?: { error?: unknown } } }
