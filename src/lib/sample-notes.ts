@@ -1,0 +1,247 @@
+import type { NoteBlock } from "./note-types";
+
+/**
+ * A polished, complete example document. It covers every block type so a new
+ * user can explore the canvas and every notes theme before spending a
+ * generation on their own topic.
+ */
+export const SAMPLE_NOTES: NoteBlock[] = [
+  {
+    id: "hero",
+    type: "hero",
+    title: "Neural Networks",
+    subtitle: "How machines learn to recognise patterns, in plain language and real depth.",
+    badge: "AI study notes",
+    text: "A self-contained guide: foundations, the learning loop, the main architectures, and exam-ready practice.",
+    source: "ai",
+  },
+  {
+    id: "ch1",
+    type: "chapterHeader",
+    title: "Foundations",
+    badge: "01",
+    text: "Before training a network, we need a precise picture of what it is: a stack of simple mathematical units that together approximate complicated functions.",
+    source: "ai",
+  },
+  {
+    id: "p1",
+    type: "paragraph",
+    title: "The core idea",
+    text: "A neural network is a function approximator. You give it an input, such as the pixels of an image or the words of a sentence, and it produces an output, such as a label or a prediction. What makes it powerful is that the function is not written by hand. It is described by thousands or millions of adjustable numbers called weights, and learning means finding weights that make the network's outputs match reality on examples we care about.\n\nThe trick is composition. Each layer transforms its input, and stacking layers lets the network build simple features first (edges, tones, word fragments) and then combine them into complex ones (faces, chords, meaning). A deep network is therefore not one clever formula but a hierarchy of small transformations learned together.",
+    source: "ai",
+  },
+  {
+    id: "d1",
+    type: "definition",
+    title: "Neuron",
+    text: "A single unit that multiplies its inputs by learned weights, adds a bias, and passes the result through a non-linear activation function. The non-linearity is what lets a network bend its decision boundary instead of only drawing straight lines.",
+    source: "ai",
+  },
+  {
+    id: "b1",
+    type: "bulletList",
+    title: "The three ingredients of learning",
+    items: [
+      "A model: the architecture that maps inputs to predictions.",
+      "A loss function: a number that measures how wrong the predictions are.",
+      "An optimiser: the rule that updates weights to reduce that loss.",
+    ],
+    source: "ai",
+  },
+  {
+    id: "ch2",
+    type: "chapterHeader",
+    title: "How learning actually happens",
+    badge: "02",
+    text: "Training is a loop: predict, measure the error, then nudge every weight in the direction that reduces the error.",
+    source: "ai",
+  },
+  {
+    id: "p2",
+    type: "paragraph",
+    title: "Gradient descent in one picture",
+    text: "Imagine the loss as a hilly landscape where every point is a particular setting of the weights. Training starts at a random point and repeatedly steps downhill. The gradient tells you the steepest direction of increase, so you move in the opposite direction. The learning rate controls how large each step is: too small and training crawls, too large and you leap across the valley and never settle.",
+    source: "ai",
+  },
+  {
+    id: "f1",
+    type: "formula",
+    title: "The weight update rule",
+    formula: "w_{t+1} = w_t - \\eta \\cdot \\nabla_w L(w_t)",
+    text: "Here w is the weight vector, η is the learning rate, and ∇L is the gradient of the loss with respect to those weights.",
+    source: "ai",
+  },
+  {
+    id: "s1",
+    type: "steps",
+    title: "One training iteration",
+    steps: [
+      { title: "Forward pass", detail: "Feed a batch of examples through the network to obtain predictions." },
+      { title: "Compute loss", detail: "Compare predictions with the true targets using a suitable loss such as cross-entropy." },
+      { title: "Backward pass", detail: "Apply the chain rule to find how each weight contributed to the error." },
+      { title: "Update weights", detail: "Move each weight a small step opposite its gradient, then repeat." },
+    ],
+    source: "ai",
+  },
+  {
+    id: "flow1",
+    type: "flowchart",
+    title: "The training loop",
+    mermaid:
+      "flowchart LR\n  A[Input batch] --> B[Forward pass]\n  B --> C[Prediction]\n  C --> D{Loss}\n  D --> E[Backpropagation]\n  E --> F[Update weights]\n  F --> A",
+    text: "The loop repeats until validation loss stops improving. That stopping signal is early stopping.",
+    source: "ai",
+  },
+  {
+    id: "code1",
+    type: "code",
+    title: "A minimal training loop",
+    language: "python",
+    text: "The same four steps, written out. Frameworks hide the details, not the idea.",
+    code: "for epoch in range(epochs):\n    for xb, yb in batches:\n        pred = model(xb)              # forward pass\n        loss = loss_fn(pred, yb)      # measure error\n        loss.backward()               # backpropagation\n        optimizer.step()              # update weights\n        optimizer.zero_grad()         # reset gradients",
+    source: "ai",
+  },
+  {
+    id: "c1",
+    type: "callout",
+    tone: "important",
+    title: "Backpropagation is not a separate algorithm",
+    text: "It is simply the chain rule applied efficiently to a computation graph. The network stores intermediate values during the forward pass so it can reuse them when computing gradients.",
+    source: "ai",
+  },
+  {
+    id: "sp1",
+    type: "solvedProblem",
+    title: "Solved problem: one gradient step",
+    text: "Suppose a single weight starts at w = 2.0, the gradient of the loss at that point is 3.0, and the learning rate is 0.1. Where does the weight move?",
+    steps: [
+      { title: "Apply the update rule", detail: "w_new = w - η · gradient = 2.0 - 0.1 × 3.0." },
+      { title: "Compute", detail: "w_new = 2.0 - 0.3 = 1.7." },
+      { title: "Interpret", detail: "Because the gradient is positive, increasing w had been increasing the loss, so the update decreases w. The loss should be slightly lower after this step." },
+    ],
+    source: "ai",
+  },
+  {
+    id: "ch3",
+    type: "chapterHeader",
+    title: "The main architectures",
+    badge: "03",
+    text: "Different data shapes call for different inductive biases. The architecture is a hypothesis about what patterns matter.",
+    source: "ai",
+  },
+  {
+    id: "tree1",
+    type: "tree",
+    title: "A map of common architectures",
+    mermaid:
+      "flowchart TD\n  NN[Neural networks] --> FF[Feed-forward]\n  NN --> SEQ[Sequence models]\n  NN --> GEN[Generative models]\n  FF --> MLP[MLP for tabular data]\n  FF --> CNN[CNN for images]\n  SEQ --> RNN[RNN / LSTM]\n  SEQ --> TR[Transformer]\n  GEN --> VAE[VAE]\n  GEN --> GAN[GAN]",
+    source: "ai",
+  },
+  {
+    id: "t1",
+    type: "comparisonTable",
+    title: "Choosing an architecture",
+    headers: ["Aspect", "CNN", "RNN / LSTM", "Transformer"],
+    rows: [
+      ["Best for", "Images, local patterns", "Ordered sequences, streaming", "Long-range relationships, text"],
+      ["Key mechanism", "Shared convolution filters", "Hidden state carried over time", "Self-attention across all tokens"],
+      ["Main weakness", "Weak global context", "Hard to parallelise, forgets long history", "Quadratic cost in sequence length"],
+      ["Training signal", "Supervised", "Supervised or sequence-to-sequence", "Pretraining plus fine-tuning"],
+    ],
+    source: "ai",
+  },
+  {
+    id: "pc1",
+    type: "prosCons",
+    title: "Deep learning: the honest trade-off",
+    pros: [
+      "Learns features automatically instead of requiring manual engineering.",
+      "Scales well with data and compute, often beating classical methods.",
+      "Flexible: the same toolkit handles vision, language and audio.",
+    ],
+    cons: [
+      "Data-hungry; small datasets often favour simpler models.",
+      "Opaque: explaining a prediction is genuinely difficult.",
+      "Expensive to train, tune and deploy responsibly.",
+    ],
+    source: "ai",
+  },
+  {
+    id: "ex1",
+    type: "example",
+    title: "Real-world example: medical imaging",
+    text: "A convolutional network trained on labelled scans learns filters that respond to edges, then textures, then organ boundaries. Radiologists still make the final call, but the model can flag suspicious regions and reduce the time spent on routine screening. Notice the pattern: the network learns a hierarchy of visual features, and the humans supply judgement and accountability.",
+    source: "ai",
+  },
+  {
+    id: "c2",
+    type: "callout",
+    tone: "warning",
+    title: "Correlation is not understanding",
+    text: "A model can reach high accuracy using spurious cues, such as a hospital tag in the corner of an X-ray. Always validate on data that reflects the real deployment setting, and inspect what the model actually relies on.",
+    source: "ai",
+  },
+  {
+    id: "gl1",
+    type: "glossary",
+    title: "Key terms",
+    terms: [
+      { term: "Epoch", definition: "One complete pass over the entire training dataset." },
+      { term: "Batch", definition: "A small group of examples processed before one weight update." },
+      { term: "Overfitting", definition: "Memorising training examples instead of learning general patterns." },
+      { term: "Regularisation", definition: "Any constraint that discourages overfitting, such as weight decay or dropout." },
+    ],
+    source: "ai",
+  },
+  {
+    id: "ch4",
+    type: "chapterHeader",
+    title: "Practice",
+    badge: "04",
+    text: "Retrieve before you reread. Try each prompt out loud before revealing the answer.",
+    source: "ai",
+  },
+  {
+    id: "fc1",
+    type: "flashcards",
+    title: "Flashcards",
+    pairs: [
+      { front: "What does the learning rate control?", back: "The size of each weight update during gradient descent." },
+      { front: "Why do we need non-linear activations?", back: "Without them, stacked layers collapse into a single linear transformation." },
+      { front: "What is the purpose of a validation set?", back: "To estimate generalisation and tune decisions without touching the test set." },
+    ],
+    source: "ai",
+  },
+  {
+    id: "q1",
+    type: "quiz",
+    title: "Quick quiz",
+    pairs: [
+      {
+        front: "A model performs perfectly on training data but poorly on new data. Name the problem and one remedy.",
+        back: "Overfitting. Remedies include more data, regularisation such as dropout or weight decay, simpler architectures, and early stopping.",
+      },
+      {
+        front: "Why is backpropagation efficient on a deep network?",
+        back: "It reuses intermediate values from the forward pass and computes all gradients in one backward sweep, rather than recomputing each derivative independently.",
+      },
+      {
+        front: "What inductive bias does a convolutional layer introduce?",
+        back: "Local connectivity and weight sharing, which encode the assumption that nearby pixels form meaningful patterns that can appear anywhere in the image.",
+      },
+    ],
+    source: "ai",
+  },
+  {
+    id: "tk1",
+    type: "takeaways",
+    title: "Key takeaways",
+    items: [
+      "Neural networks are differentiable function approximators trained by gradient descent.",
+      "The training loop is forward pass, loss, backward pass, update — repeated.",
+      "Architecture encodes an assumption about the data; choose it deliberately.",
+      "Generalisation, not training accuracy, is the real objective.",
+    ],
+    source: "ai",
+  },
+];

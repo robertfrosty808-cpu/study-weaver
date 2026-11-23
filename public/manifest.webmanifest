@@ -1,0 +1,17 @@
+{
+  "name": "NoteForge — AI Notes Studio",
+  "short_name": "NoteForge",
+  "description": "Turn any topic into detailed, beautifully designed study notes you can edit and restyle.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f6f3",
+  "theme_color": "#f7f6f3",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
