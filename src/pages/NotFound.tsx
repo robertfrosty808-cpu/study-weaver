@@ -17,7 +17,7 @@ export default function NotFound() {
         <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">404</p>
         <h1 className="font-display mt-2 text-3xl font-extrabold tracking-[-0.03em]">This page wandered off.</h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          It may have moved, or the link may be incomplete. Your study sets are safe.
+          It may have moved, or the link may be incomplete. Your notes are safe.
         </p>
         <div className="mt-7 flex flex-col justify-center gap-2 sm:flex-row">
           <Button asChild>

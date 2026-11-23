@@ -1,11 +1,11 @@
 {
-  "name": "NoteForge — AI Notes Studio",
-  "short_name": "NoteForge",
-  "description": "Turn any topic into detailed, beautifully designed study notes you can edit and restyle.",
+  "name": "EduNotes Pro — Study Notes Studio",
+  "short_name": "EduNotes Pro",
+  "description": "Turn your course material into detailed, beautifully designed study notes you can edit and restyle.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f6f3",
-  "theme_color": "#f7f6f3",
+  "background_color": "#f6f5f1",
+  "theme_color": "#f6f5f1",
   "icons": [
     {
       "src": "/logo.svg",

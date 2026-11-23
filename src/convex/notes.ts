@@ -45,6 +45,8 @@ export const list = query({
       theme: row.theme,
       subtitle: row.notes?.subtitle,
       subject: row.notes?.subject,
+      hasSource: Boolean(row.sourceMaterial),
+      sourceLabel: row.sourceLabel,
       blockCount: row.blocks.length,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -70,8 +72,10 @@ export const create = mutation({
     topic: v.string(),
     settings: settingsValidator,
     theme: v.string(),
+    sourceMaterial: v.optional(v.string()),
+    sourceLabel: v.optional(v.string()),
   },
-  handler: async (ctx, { topic, settings, theme }) => {
+  handler: async (ctx, { topic, settings, theme, sourceMaterial, sourceLabel }) => {
     const userId = await requireUserId(ctx);
     const clean = topic.trim();
     if (clean.length < 2) {
@@ -89,6 +93,8 @@ export const create = mutation({
       theme,
       settings,
       notes: { title: titleFromTopic(clean), subtitle: "", subject: "" },
+      sourceMaterial: sourceMaterial?.trim() ? sourceMaterial.trim().slice(0, 30000) : undefined,
+      sourceLabel: sourceMaterial?.trim() ? sourceLabel?.trim().slice(0, 160) : undefined,
       blocks: [],
       warnings: [],
       createdAt: now,
@@ -138,7 +144,7 @@ export const updateBlocks = mutation({
     const userId = await requireUserId(ctx);
     const project = await ctx.db.get(id);
     if (!project || project.userId !== userId) {
-      throw new ConvexError("That study set is not available.");
+      throw new ConvexError("Those notes are not available.");
     }
     await ctx.db.patch(id, { blocks, updatedAt: Date.now() });
     return true;

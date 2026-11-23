@@ -46,6 +46,7 @@ import {
   Sparkles,
   Trash2,
   Undo2,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -96,7 +97,7 @@ function GenerationScreen({ project }: { project: ProjectDoc }) {
           <Logo to="/dashboard" />
           <div className="flex items-center gap-2 rounded-full border border-border/80 bg-card px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
             <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-            {project.status === "queued" ? "Starting up" : "Generating now"}
+            {project.status === "queued" ? "Starting up" : "Building your notes"}
           </div>
         </div>
       </header>
@@ -104,11 +105,13 @@ function GenerationScreen({ project }: { project: ProjectDoc }) {
       <main className="mx-auto grid max-w-[1280px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:py-10">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-[0_1px_2px_rgb(20_22_40/0.04)]">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">AI notes studio</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">EduNotes Pro</p>
             <h1 className="font-display mt-2 text-xl font-extrabold leading-tight tracking-tight">
-              Forging your study guide
+              Building your study guide
             </h1>
-            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">{project.topic}</p>
+            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
+              {project.sourceLabel ? `From ${project.sourceLabel}` : project.topic}
+            </p>
 
             <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-muted">
               <motion.div
@@ -164,9 +167,11 @@ function GenerationScreen({ project }: { project: ProjectDoc }) {
           </div>
 
           <div className="mt-3 rounded-xl border border-border/70 bg-muted/40 px-4 py-3">
-            <p className="text-[11px] font-medium">Source-accuracy note</p>
+            <p className="text-[11px] font-medium">Source accuracy</p>
             <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
-              Every section is tagged “AI explanation”. No page references are shown because this guide was built from your topic, not an uploaded file.
+              {project.sourceMaterial
+                ? "Content taken directly from your material is labeled “From your material” with a page or slide reference. Added teaching explanations are labeled “AI explanation” so you can tell them apart."
+                : "Every section is tagged “AI explanation”. No page references are shown because this guide was built from your topic, not uploaded material."}
             </p>
           </div>
         </div>
@@ -222,7 +227,7 @@ function GenerationScreen({ project }: { project: ProjectDoc }) {
           </div>
 
           <p className="mt-3 text-center text-[10px] text-muted-foreground/70">
-            Keep this tab open. The guide is stored automatically as each chapter is finished.
+            Keep this tab open. Your guide is saved automatically as each chapter is finished.
           </p>
         </div>
       </main>
@@ -255,12 +260,12 @@ function FailureScreen({
         <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-destructive/10 text-destructive">
           <AlertTriangle className="size-5" />
         </div>
-        <h1 className="font-display mt-4 text-2xl font-extrabold tracking-tight">Generation stopped</h1>
+                    <h1 className="font-display mt-4 text-2xl font-extrabold tracking-tight">Your notes paused mid-build</h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {project.error || "Something went wrong while writing this study guide."}
         </p>
         <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-muted-foreground/70">
-          Your topic is saved. Try again — the pipeline restarts from the understanding step.
+          Your request and settings are saved. Try again — the pipeline restarts from the understanding step.
         </p>
         <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
           <Button onClick={onRetry} disabled={retrying}>
@@ -280,7 +285,7 @@ function FailureScreen({
 /* Editor                                                              */
 /* ------------------------------------------------------------------ */
 
-const PREFS_KEY = "noteforge:notes-prefs";
+const PREFS_KEY = "edunotes:notes-prefs";
 
 function loadPrefs(): { typeface: "sans" | "serif"; width: "focused" | "wide" } {
   try {
@@ -395,6 +400,7 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
   const [dragOver, setDragOver] = useState<number | null>(null);
   const [, setHistoryTick] = useState(0);
   const [tocOpen, setTocOpen] = useState(false);
+  const [warningsDismissed, setWarningsDismissed] = useState(false);
 
   const historyRef = useRef<NoteBlock[][]>([initialBlocks]);
   const historyIndexRef = useRef(0);
@@ -557,7 +563,7 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
           <Button variant="ghost" size="icon" className="size-8" aria-label="Back to dashboard" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="size-4" />
           </Button>
-          <Link to="/dashboard" className="hidden sm:block" aria-label="NoteForge dashboard">
+          <Link to="/dashboard" className="hidden sm:block" aria-label="EduNotes Pro dashboard">
             <LogoMark />
           </Link>
           <div className="mx-1 hidden h-6 w-px bg-border sm:block" />
@@ -714,6 +720,32 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
         </div>
       )}
 
+      {!warningsDismissed && (project.warnings?.length ?? 0) > 0 && (
+        <div className="border-b border-[#d9a23a]/25 bg-[#f2bf5e]/10">
+          <div className="mx-auto flex max-w-[1180px] items-start gap-3 px-4 py-2.5 sm:px-6">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#a8730f]" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[11px] font-semibold text-foreground">Before you study this set</p>
+              <ul className="mt-0.5 space-y-0.5">
+                {project.warnings?.map((warning) => (
+                  <li key={warning} className="text-[10px] leading-5 text-muted-foreground">
+                    {warning}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button
+              type="button"
+              onClick={() => setWarningsDismissed(true)}
+              aria-label="Dismiss warnings"
+              className="rounded p-1 text-muted-foreground hover:bg-black/5 hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto flex max-w-[1500px] items-start">
         <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[236px] shrink-0 overflow-y-auto border-r border-border/60 p-5 xl:block">
           {toc}
@@ -836,9 +868,16 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
                 style={{ borderColor: "var(--np-border)", color: "var(--np-muted)" }}
               >
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="size-3" /> Made with NoteForge · AI explanation
+                  <Sparkles className="size-3" /> Made with EduNotes Pro
                 </span>
-                <span className="opacity-70">Verify important facts before relying on them.</span>
+                <span className="flex flex-wrap items-center gap-3 opacity-70">
+                  {project.sourceMaterial && (
+                    <span className="max-w-[280px] truncate">
+                      Source: {project.sourceLabel || "Your material"}
+                    </span>
+                  )}
+                  <span>Verify important facts before relying on them.</span>
+                </span>
               </footer>
             </div>
 
@@ -1033,7 +1072,7 @@ export default function NotesStudio() {
           <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
             <ArrowUpRight className="size-5" />
           </div>
-          <h1 className="font-display mt-4 text-xl font-bold">Study set not found</h1>
+          <h1 className="font-display mt-4 text-xl font-bold">Notes not found</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">It may have been deleted, or it belongs to another account.</p>
           <Button className="mt-5" onClick={() => navigate("/dashboard")}>
             Back to dashboard

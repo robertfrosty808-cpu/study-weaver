@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 export type AppTheme = "light" | "dark";
 
-const STORAGE_KEY = "noteforge:app-theme";
+const STORAGE_KEY = "edunotes:app-theme";
 const listeners = new Set<() => void>();
 
 function readTheme(): AppTheme {
@@ -20,7 +20,7 @@ function applyTheme(theme: AppTheme) {
   root.classList.toggle("light", theme === "light");
   root.style.colorScheme = theme;
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", theme === "dark" ? "#171a22" : "#f7f6f3");
+  if (meta) meta.setAttribute("content", theme === "dark" ? "#14161c" : "#f6f5f1");
 }
 
 if (typeof document !== "undefined") {

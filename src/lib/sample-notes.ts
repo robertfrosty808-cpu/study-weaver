@@ -10,7 +10,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
     id: "hero",
     type: "hero",
     title: "Neural Networks",
-    subtitle: "How machines learn to recognise patterns, in plain language and real depth.",
+    subtitle: "How machines learn to recognize patterns, in plain language and real depth.",
     badge: "AI study notes",
     text: "A self-contained guide: foundations, the learning loop, the main architectures, and exam-ready practice.",
     source: "ai",
@@ -145,7 +145,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
     rows: [
       ["Best for", "Images, local patterns", "Ordered sequences, streaming", "Long-range relationships, text"],
       ["Key mechanism", "Shared convolution filters", "Hidden state carried over time", "Self-attention across all tokens"],
-      ["Main weakness", "Weak global context", "Hard to parallelise, forgets long history", "Quadratic cost in sequence length"],
+      ["Main weakness", "Weak global context", "Hard to parallelize, forgets long history", "Quadratic cost in sequence length"],
       ["Training signal", "Supervised", "Supervised or sequence-to-sequence", "Pretraining plus fine-tuning"],
     ],
     source: "ai",
@@ -160,7 +160,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
       "Flexible: the same toolkit handles vision, language and audio.",
     ],
     cons: [
-      "Data-hungry; small datasets often favour simpler models.",
+      "Data-hungry; small datasets often favor simpler models.",
       "Opaque: explaining a prediction is genuinely difficult.",
       "Expensive to train, tune and deploy responsibly.",
     ],
@@ -170,7 +170,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
     id: "ex1",
     type: "example",
     title: "Real-world example: medical imaging",
-    text: "A convolutional network trained on labelled scans learns filters that respond to edges, then textures, then organ boundaries. Radiologists still make the final call, but the model can flag suspicious regions and reduce the time spent on routine screening. Notice the pattern: the network learns a hierarchy of visual features, and the humans supply judgement and accountability.",
+    text: "A convolutional network trained on labeled scans learns filters that respond to edges, then textures, then organ boundaries. Radiologists still make the final call, but the model can flag suspicious regions and reduce the time spent on routine screening. Notice the pattern: the network learns a hierarchy of visual features, and the humans supply judgment and accountability.",
     source: "ai",
   },
   {
@@ -189,7 +189,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
       { term: "Epoch", definition: "One complete pass over the entire training dataset." },
       { term: "Batch", definition: "A small group of examples processed before one weight update." },
       { term: "Overfitting", definition: "Memorising training examples instead of learning general patterns." },
-      { term: "Regularisation", definition: "Any constraint that discourages overfitting, such as weight decay or dropout." },
+      { term: "Regularization", definition: "Any constraint that discourages overfitting, such as weight decay or dropout." },
     ],
     source: "ai",
   },
@@ -219,7 +219,7 @@ export const SAMPLE_NOTES: NoteBlock[] = [
     pairs: [
       {
         front: "A model performs perfectly on training data but poorly on new data. Name the problem and one remedy.",
-        back: "Overfitting. Remedies include more data, regularisation such as dropout or weight decay, simpler architectures, and early stopping.",
+        back: "Overfitting. Remedies include more data, regularization such as dropout or weight decay, simpler architectures, and early stopping.",
       },
       {
         front: "Why is backpropagation efficient on a deep network?",

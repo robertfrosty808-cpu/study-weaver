@@ -95,11 +95,11 @@ export const DETAIL_LEVELS = [
 export type DetailLevel = (typeof DETAIL_LEVELS)[number]["id"];
 
 export const AUDIENCES = [
-  "Curious self-learner",
-  "High school student",
   "University student",
+  "High school student",
   "Exam candidate",
   "Working professional",
+  "Curious self-learner",
   "Complete beginner",
 ] as const;
 
@@ -118,7 +118,7 @@ export const LANGUAGES = [
 export const DEFAULT_SETTINGS: NoteSettings = {
   detail: "very-detailed",
   language: "English",
-  audience: "Curious self-learner",
+  audience: "University student",
   mode: "concept",
   diagrams: true,
   examples: true,
@@ -200,6 +200,8 @@ export interface ProjectSummary {
   theme: string;
   subtitle?: string;
   subject?: string;
+  hasSource?: boolean;
+  sourceLabel?: string;
   blockCount: number;
   createdAt: number;
   updatedAt: number;
@@ -215,7 +217,7 @@ export interface ProjectDetail extends ProjectSummary {
 }
 
 export const GEN_STEPS = [
-  { id: "reading", label: "Reading", blurb: "Interpreting the topic and its scope" },
+  { id: "reading", label: "Reading", blurb: "Reading your material or scoping the topic" },
   { id: "understanding", label: "Understanding", blurb: "Mapping concepts, terms and relationships" },
   { id: "structuring", label: "Structuring", blurb: "Designing chapters and the learning path" },
   { id: "writing", label: "Writing", blurb: "Teaching each chapter in depth" },

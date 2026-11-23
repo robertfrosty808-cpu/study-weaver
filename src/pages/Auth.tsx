@@ -90,7 +90,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           className="pointer-events-none absolute inset-0 opacity-70"
           style={{
             backgroundImage:
-              "radial-gradient(60% 50% at 20% 10%, rgba(74,99,232,0.35), transparent 60%), radial-gradient(50% 45% at 90% 80%, rgba(18,150,143,0.28), transparent 60%)",
+              "radial-gradient(60% 50% at 20% 10%, rgba(60,86,224,0.42), transparent 60%), radial-gradient(50% 45% at 90% 80%, rgba(11,143,134,0.32), transparent 60%), radial-gradient(34% 30% at 80% 25%, rgba(242,191,94,0.18), transparent 70%)",
           }}
         />
         <div
@@ -106,26 +106,27 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
 
         <Link to="/" className="relative inline-flex items-center gap-2.5 self-start">
           <LogoMark />
-          <span className="font-display text-[17px] font-extrabold tracking-[-0.03em]">NoteForge</span>
+          <span className="font-display text-[17px] font-extrabold tracking-[-0.03em]">EduNotes</span>
+          <span className="rounded-md bg-[#f2bf5e] px-1.5 py-[3px] font-display text-[8px] font-extrabold uppercase tracking-[0.14em] text-[#1b1a16]">Pro</span>
         </Link>
 
         <div className="relative mt-auto max-w-md pb-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-medium text-white/70">
-            <Sparkles className="size-3 text-[#9fb2ff]" />
-            AI notes studio
+            <Sparkles className="size-3 text-[#f2bf5e]" />
+            Premium study workspace
           </div>
           <h2 className="font-display mt-5 text-[38px] font-extrabold leading-[1.08] tracking-[-0.035em]">
-            Study notes that actually teach.
+            Your course material, taught back to you properly.
           </h2>
           <p className="mt-4 text-sm leading-7 text-white/60">
-            Bring a topic. Get a structured, deeply explained study guide — then edit it and restyle it until it feels like yours.
+            Upload slides and readings, or start with a topic. EduNotes Pro builds a structured, deeply explained study guide — then gives you full control over how it looks.
           </p>
 
           <ul className="mt-8 space-y-3">
             {[
-              { Icon: PenLine, text: "Edit every line, reorder every block" },
-              { Icon: Palette, text: "Six editorial themes, one click apart" },
-              { Icon: ShieldCheck, text: "Autosaved, always yours" },
+              { Icon: PenLine, text: "Upload or paste your own material" },
+              { Icon: Palette, text: "Edit every line and restyle in a click" },
+              { Icon: ShieldCheck, text: "Autosaved in your private workspace" },
             ].map(({ Icon, text }) => (
               <li key={text} className="flex items-center gap-3 text-[13px] text-white/75">
                 <span className="grid size-7 place-items-center rounded-lg border border-white/10 bg-white/5 text-[#9fb2ff]">
@@ -148,7 +149,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           </div>
         </div>
 
-        <p className="relative mt-10 text-[10px] text-white/30">Notes for the curious.</p>
+        <p className="relative mt-10 text-[10px] text-white/30">For students and the learning organizations that support them.</p>
       </aside>
 
       {/* Form panel */}
@@ -165,21 +166,22 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <div className="mb-7 lg:hidden">
               <Link to="/" className="inline-flex items-center gap-2">
                 <LogoMark />
-                <span className="font-display text-base font-extrabold tracking-tight">NoteForge</span>
+                <span className="font-display text-base font-extrabold tracking-tight">EduNotes</span>
+                <span className="rounded bg-[#f2bf5e] px-1 py-0.5 font-display text-[8px] font-extrabold uppercase tracking-[0.12em] text-[#1b1a16]">Pro</span>
               </Link>
             </div>
 
             {step === "signIn" ? (
               <>
                 <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
-                  <span className="size-1.5 rounded-full bg-primary" />
-                  Free to start
+                  <span className="size-1.5 rounded-full bg-[#0b8f86]" />
+                  Your account
                 </div>
                 <h1 className="font-display mt-4 text-[30px] font-extrabold tracking-[-0.03em] sm:text-[34px]">
-                  Learn something new today.
+                  Welcome to your study workspace.
                 </h1>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Sign in with a one-time code. No password to remember, and your notes stay saved to your account.
+                  Sign in with a one-time code. No password to remember, and every set of notes stays saved to your EduNotes Pro account.
                 </p>
 
                 <form onSubmit={handleEmailSubmit} className="mt-7">
@@ -233,7 +235,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 </p>
 
                 <p className="mt-7 text-center text-[10px] leading-5 text-muted-foreground/70">
-                  By continuing you agree to use NoteForge responsibly. AI notes can make mistakes — verify important facts.
+                  By continuing you agree to use EduNotes Pro responsibly. AI-generated notes can make mistakes — verify important facts against your source material.
                 </p>
               </>
             ) : (
@@ -306,7 +308,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
         </div>
 
         <div className="border-t border-border/60 px-5 py-4 text-center text-[10px] text-muted-foreground sm:px-8">
-          NoteForge · Turn topics into notes worth keeping.
+          EduNotes Pro · Turn your course material into notes worth keeping.
         </div>
       </div>
     </div>

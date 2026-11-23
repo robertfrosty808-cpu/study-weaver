@@ -12,8 +12,8 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 
 const NAV = [
-  { label: "Home", href: "/dashboard", hash: "", icon: Home },
-  { label: "My projects", href: "/dashboard#projects", hash: "#projects", icon: FolderOpen },
+  { label: "Dashboard", href: "/dashboard", hash: "", icon: Home },
+  { label: "My notes", href: "/dashboard#projects", hash: "#projects", icon: FolderOpen },
   { label: "Create notes", href: "/dashboard#compose", hash: "#compose", icon: PenLine },
 ];
 
@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const projects = useQuery(api.notes.list);
 
-  const name = user?.name || (user?.isAnonymous ? "Guest learner" : "Learner");
+  const name = user?.name || (user?.isAnonymous ? "Guest student" : "Student");
   const initials = name
     .split(" ")
     .map((part) => part[0])
@@ -54,7 +54,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           }}
         >
           <Plus className="size-4" />
-          New study set
+          Create new notes
         </Button>
       </div>
 
@@ -69,7 +69,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground",
               )}
             >
@@ -81,7 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </nav>
 
       <div className="mt-7 px-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">Recent</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">Recent notes</p>
       </div>
       <div className="mt-2 flex-1 overflow-y-auto px-3 pb-4">
         {projects === undefined ? (
@@ -92,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         ) : projects.length === 0 ? (
           <p className="px-3 text-xs leading-5 text-muted-foreground">
-            Your study sets will appear here once you forge your first one.
+            Your notes will appear here once you create your first set.
           </p>
         ) : (
           <ul className="space-y-0.5">
@@ -122,12 +122,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </div>
 
-      <div className="mx-4 mb-4 rounded-xl border border-border/70 bg-gradient-to-br from-primary/8 to-transparent p-3.5">
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <Sparkles className="size-3.5 text-primary" />
-          Tip
+      <div className="relative mx-4 mb-4 overflow-hidden rounded-xl bg-[#141821] p-3.5 text-white">
+        <div aria-hidden className="absolute -right-6 -top-8 size-20 rounded-full bg-[#3c56e0]/40 blur-2xl" />
+        <div className="relative flex items-center gap-2 text-xs font-semibold">
+          <Sparkles className="size-3.5 text-[#f2bf5e]" />
+          Pro tip
         </div>
-        <p className="mt-1.5 text-[11px] leading-5 text-muted-foreground">
+        <p className="relative mt-1.5 text-[11px] leading-5 text-white/60">
           Ask for a specific angle, like “explain it with analogies” or “prepare me for an exam”.
         </p>
       </div>

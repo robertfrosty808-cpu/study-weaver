@@ -49,6 +49,8 @@ const schema = defineSchema(
       theme: v.string(),
       settings: settingsValidator,
       notes: v.optional(notesMetaValidator),
+      sourceMaterial: v.optional(v.string()),
+      sourceLabel: v.optional(v.string()),
       blocks: v.array(noteBlockValidator),
       outline: v.optional(v.any()),
       warnings: v.optional(v.array(v.string())),

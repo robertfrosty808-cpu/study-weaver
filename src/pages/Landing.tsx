@@ -11,27 +11,22 @@ import {
   Check,
   ChevronRight,
   FileText,
+  FileUp,
   GripVertical,
   Layers,
+  LayoutDashboard,
   Lightbulb,
   Palette,
   PenLine,
   Plus,
+  ShieldCheck,
   Sparkles,
-  Wand2,
+  UploadCloud,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
-function Reveal({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
+function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 22 }}
@@ -45,10 +40,25 @@ function Reveal({
   );
 }
 
-const DEMO_TOPICS = [
-  "How neural networks learn",
-  "The chemistry of photosynthesis",
-  "Bayesian statistics",
+const DEMO_SOURCES = [
+  {
+    kind: "file" as const,
+    label: "CS-229-lecture-07.pdf",
+    meta: "18 pages · PDF",
+    title: "Neural networks",
+  },
+  {
+    kind: "topic" as const,
+    label: "Backpropagation",
+    meta: "Topic",
+    title: "Backpropagation",
+  },
+  {
+    kind: "file" as const,
+    label: "Week 6 — Training deep networks.pptx",
+    meta: "14 slides · PowerPoint",
+    title: "Training deep networks",
+  },
 ];
 
 const DEMO_STEPS = ["Reading", "Understanding", "Structuring", "Writing", "Designing"];
@@ -61,7 +71,7 @@ function LiveStudioDemo() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const topic = DEMO_TOPICS[Math.floor(tick / 5) % DEMO_TOPICS.length];
+  const source = DEMO_SOURCES[Math.floor(tick / 5) % DEMO_SOURCES.length];
   const step = tick % 5;
   const showNotes = step >= 3;
   const progress = [12, 28, 48, 78, 100][step];
@@ -70,42 +80,50 @@ function LiveStudioDemo() {
     <div className="relative">
       <div
         aria-hidden
-        className="absolute -inset-5 rounded-[40px] opacity-50 blur-3xl"
-        style={{ background: "radial-gradient(60% 60% at 70% 20%, rgba(74,99,232,0.28), transparent 70%), radial-gradient(50% 50% at 20% 80%, rgba(18,150,143,0.2), transparent 70%)" }}
+        className="absolute -inset-5 rounded-[40px] opacity-60 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(60% 60% at 70% 20%, rgba(60,86,224,0.32), transparent 70%), radial-gradient(50% 50% at 20% 80%, rgba(11,143,134,0.24), transparent 70%), radial-gradient(35% 35% at 90% 85%, rgba(242,191,94,0.2), transparent 70%)",
+        }}
       />
 
       <div className="relative rounded-[26px] border border-border/80 bg-card/90 p-2.5 shadow-[0_30px_80px_-40px_rgb(20_22_40/0.45)] backdrop-blur-xl sm:p-3">
         <div className="rounded-[20px] border border-border/70 bg-background p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-[#f08a7d]" />
-              <span className="size-2 rounded-full bg-[#efc36b]" />
-              <span className="size-2 rounded-full bg-[#77c7a0]" />
+              <span className="size-2 rounded-full bg-[#e8795f]" />
+              <span className="size-2 rounded-full bg-[#f2bf5e]" />
+              <span className="size-2 rounded-full bg-[#42b7a1]" />
             </div>
-            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground/60">NoteForge · live</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground/60">EduNotes Pro · live</span>
           </div>
 
           <div className="mt-4 rounded-xl border border-border/80 bg-card p-3">
-            <div className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-primary">
-              <Sparkles className="size-3" /> Topic
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.16em] text-primary">
+                {source.kind === "file" ? <FileUp className="size-3" /> : <Sparkles className="size-3" />}
+                {source.kind === "file" ? "Your material" : "Your topic"}
+              </div>
+              <span className="font-mono text-[8px] text-muted-foreground/60">{source.meta}</span>
             </div>
             <div className="mt-1.5 flex min-h-6 items-center gap-1 text-[13px] font-medium">
               <AnimatePresence mode="wait">
                 <motion.span
-                  key={topic}
+                  key={source.label}
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.25 }}
+                  className="truncate"
                 >
-                  {topic}
+                  {source.label}
                 </motion.span>
               </AnimatePresence>
               <motion.span
                 aria-hidden
                 animate={{ opacity: [1, 0] }}
                 transition={{ repeat: Infinity, duration: 0.9 }}
-                className="inline-block h-4 w-px bg-primary"
+                className="inline-block h-4 w-px shrink-0 bg-primary"
               />
             </div>
           </div>
@@ -114,7 +132,7 @@ function LiveStudioDemo() {
             <div className="h-1.5 overflow-hidden rounded-full bg-muted">
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: "linear-gradient(90deg, #3b55d9, #12968f)" }}
+                style={{ background: "linear-gradient(90deg, #3c56e0, #0b8f86 70%, #f2bf5e)" }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
@@ -125,10 +143,14 @@ function LiveStudioDemo() {
                   key={label}
                   className={cn(
                     "flex items-center gap-1 text-[9px] font-medium transition-colors",
-                    index < step ? "text-primary" : index === step ? "text-foreground" : "text-muted-foreground/50",
+                    index < step ? "text-[#0b8f86]" : index === step ? "text-foreground" : "text-muted-foreground/50",
                   )}
                 >
-                  {index < step ? <Check className="size-2.5" /> : <span className={cn("size-1 rounded-full", index === step ? "animate-pulse bg-primary" : "bg-muted-foreground/30")} />}
+                  {index < step ? (
+                    <Check className="size-2.5" />
+                  ) : (
+                    <span className={cn("size-1 rounded-full", index === step ? "animate-pulse bg-primary" : "bg-muted-foreground/30")} />
+                  )}
                   {label}
                 </span>
               ))}
@@ -137,29 +159,23 @@ function LiveStudioDemo() {
         </div>
 
         <div className="note-canvas notes-midnight mt-2.5 min-h-[248px] overflow-hidden rounded-[20px] border p-4 sm:p-5" style={{ borderColor: "var(--np-border-strong)" }}>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 text-[8px] font-semibold uppercase tracking-[0.18em]" style={{ color: "var(--np-accent)" }}>
               <FileText className="size-2.5" /> {showNotes ? "Chapter 01" : "Outline"}
             </span>
             <span className="rounded-full border px-1.5 py-0.5 font-mono text-[8px]" style={{ borderColor: "var(--np-border)", color: "var(--np-muted)" }}>
-              {showNotes ? "AI explanation" : "drafting"}
+              {showNotes ? (source.kind === "file" ? "From your material · p. 4" : "AI explanation") : "reading"}
             </span>
           </div>
 
           <AnimatePresence mode="wait">
             {showNotes ? (
-              <motion.div
-                key="notes"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-              >
+              <motion.div key="notes" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
                 <h3 className="np-heading mt-2.5 text-lg font-extrabold leading-tight" style={{ color: "var(--np-heading)" }}>
-                  {topic}
+                  {source.title}
                 </h3>
                 <p className="mt-1.5 text-[10px] leading-4" style={{ color: "var(--np-muted)" }}>
-                  A clear model first, then the mechanics, then the maths that makes it precise.
+                  A clear model first, then the mechanics, then the details that make it precise.
                 </p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <motion.div
@@ -205,9 +221,7 @@ function LiveStudioDemo() {
               <motion.div key={`outline-${tick}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2">
                 {[0, 1, 2, 3].map((row) => (
                   <div key={row} className="flex items-center gap-2">
-                    <span className="font-mono text-[8px]" style={{ color: "var(--np-accent)" }}>
-                      {String(row + 1).padStart(2, "0")}
-                    </span>
+                    <span className="font-mono text-[8px]" style={{ color: "var(--np-accent)" }}>{String(row + 1).padStart(2, "0")}</span>
                     <div
                       className="h-2 rounded-full"
                       style={{
@@ -218,7 +232,7 @@ function LiveStudioDemo() {
                   </div>
                 ))}
                 <p className="pt-2 text-[9px]" style={{ color: "var(--np-muted)" }}>
-                  Mapping concepts, prerequisites and the order that makes them click…
+                  Reading the structure, mapping concepts and planning the teaching order…
                 </p>
               </motion.div>
             )}
@@ -247,8 +261,8 @@ function LiveStudioDemo() {
         transition={{ delay: 0.8 }}
         className="absolute -right-2 top-16 hidden items-center gap-2 rounded-xl border border-border/80 bg-card px-3 py-2 shadow-lg sm:flex"
       >
-        <Palette className="size-3.5 text-primary" />
-        <p className="text-[10px] font-semibold">6 themes</p>
+        <ShieldCheck className="size-3.5 text-[#0b8f86]" />
+        <p className="text-[10px] font-semibold">Source-tagged</p>
       </motion.div>
     </div>
   );
@@ -289,9 +303,7 @@ function ThemePreview() {
             aria-pressed={themeId === item.id}
             className={cn(
               "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all",
-              themeId === item.id
-                ? "border-primary/50 bg-primary/5 shadow-sm"
-                : "border-border/80 bg-card hover:border-border hover:bg-muted/40",
+              themeId === item.id ? "border-primary/50 bg-primary/5 shadow-sm" : "border-border/80 bg-card hover:border-border hover:bg-muted/40",
             )}
           >
             <span
@@ -352,7 +364,7 @@ function ThemePreview() {
 export default function Landing() {
   const { isAuthenticated } = useAuth();
   const primaryHref = isAuthenticated ? "/dashboard" : "/auth?returnTo=/dashboard";
-  const primaryLabel = isAuthenticated ? "Open your studio" : "Start forging — free";
+  const primaryLabel = isAuthenticated ? "Open your workspace" : "Create your first notes";
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
@@ -360,7 +372,7 @@ export default function Landing() {
         <div className="mx-auto flex h-16 max-w-[1180px] items-center justify-between px-5 sm:px-8">
           <Logo />
           <nav className="hidden items-center gap-7 md:flex" aria-label="Landing navigation">
-            <a href="#features" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Features</a>
+            <a href="#platform" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Platform</a>
             <a href="#themes" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">Themes</a>
             <a href="#how" className="text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground">How it works</a>
           </nav>
@@ -385,21 +397,22 @@ export default function Landing() {
         {/* Hero */}
         <section className="relative">
           <div aria-hidden className="paper-grid pointer-events-none absolute inset-0" />
-          <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[900px] -translate-x-1/2 rounded-full opacity-50 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(74,99,232,0.14), transparent 65%)" }} />
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[460px] w-[980px] -translate-x-1/2 rounded-full opacity-60 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(60,86,224,0.16), rgba(11,143,134,0.08) 45%, transparent 70%)" }} />
+          <div aria-hidden className="pointer-events-none absolute right-0 top-40 size-40 rounded-full bg-[#f2bf5e]/15 blur-3xl" />
           <div className="relative mx-auto grid max-w-[1180px] items-center gap-14 px-5 pb-16 pt-14 sm:px-8 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:pb-24 lg:pt-20">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
               <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm">
-                <span className="flex size-4 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <span className="flex size-4 items-center justify-center rounded-full bg-[#f2bf5e]/20 text-[#b47c12]">
                   <Sparkles className="size-2.5" />
                 </span>
-                The AI notes studio for self-learners
+                Premium notes for students
               </div>
               <h1 className="font-display mt-5 text-[42px] font-extrabold leading-[1.03] tracking-[-0.04em] sm:text-[58px] lg:text-[64px]">
-                Turn any topic into{" "}
+                Turn what you’re given into{" "}
                 <span className="brand-gradient-text">notes worth keeping.</span>
               </h1>
-              <p className="mt-5 max-w-[520px] text-[15px] leading-7 text-muted-foreground sm:text-base sm:leading-8">
-                NoteForge teaches itself the subject first — mapping concepts, sequencing chapters, and writing deep explanations. Then it designs a beautifully structured study guide you can edit line by line and restyle in one click.
+              <p className="mt-5 max-w-[530px] text-[15px] leading-7 text-muted-foreground sm:text-base sm:leading-8">
+                EduNotes Pro reads your lecture slides, readings and course notes — then writes a structured, deeply explained study guide. Edit every line, restyle it in a click, and keep it in your own workspace.
               </p>
               <div className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:items-center">
                 <Button size="lg" asChild className="h-11 rounded-xl px-5 text-sm font-semibold shadow-sm">
@@ -410,15 +423,15 @@ export default function Landing() {
                 </Button>
                 <Button size="lg" variant="outline" asChild className="h-11 rounded-xl px-5 text-sm">
                   <a href="#themes">
-                    See the themes
+                    Explore the themes
                     <ChevronRight className="ml-1.5 size-4" />
                   </a>
                 </Button>
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-primary" /> No credit card</span>
-                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-primary" /> 6 editorial themes</span>
-                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-primary" /> Edit everything</span>
+                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-[#0b8f86]" /> Upload or paste your material</span>
+                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-[#0b8f86]" /> Your own dashboard</span>
+                <span className="flex items-center gap-1.5"><Check className="size-3.5 text-[#0b8f86]" /> Edit everything</span>
               </div>
             </motion.div>
 
@@ -432,13 +445,14 @@ export default function Landing() {
         <section className="border-y border-border/60 bg-card/50">
           <div className="mx-auto grid max-w-[1180px] grid-cols-2 divide-x divide-border/60 px-5 sm:grid-cols-4 sm:px-8">
             {[
-              { value: "19", label: "visual block types" },
-              { value: "6", label: "complete themes" },
-              { value: "5-step", label: "teaching pipeline" },
-              { value: "1", label: "topic to get started" },
+              { value: "PDF · PPTX", label: "and pasted material", tone: "#3c56e0" },
+              { value: "19", label: "visual block types", tone: "#0b8f86" },
+              { value: "6", label: "complete themes", tone: "#c98b22" },
+              { value: "1", label: "private study workspace", tone: "#c2553e" },
             ].map((stat) => (
               <div key={stat.label} className="px-4 py-6 first:pl-0 sm:px-6">
-                <p className="font-display text-2xl font-extrabold tracking-tight sm:text-[28px]">{stat.value}</p>
+                <span className="mb-2 block h-1 w-6 rounded-full" style={{ background: stat.tone }} />
+                <p className="font-display text-xl font-extrabold tracking-tight sm:text-[26px]">{stat.value}</p>
                 <p className="mt-0.5 text-[11px] text-muted-foreground">{stat.label}</p>
               </div>
             ))}
@@ -446,14 +460,14 @@ export default function Landing() {
         </section>
 
         {/* Features */}
-        <section id="features" className="mx-auto max-w-[1180px] scroll-mt-20 px-5 py-20 sm:px-8 sm:py-24">
+        <section id="platform" className="mx-auto max-w-[1180px] scroll-mt-20 px-5 py-20 sm:px-8 sm:py-24">
           <Reveal className="max-w-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Not another summariser</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">The platform</p>
             <h2 className="font-display mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-[40px] sm:leading-[1.1]">
-              It understands the subject before it writes a word.
+              Serious notes, built around your actual coursework.
             </h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">
-              A multi-step teaching pipeline maps the topic, sequences the learning path, then writes each chapter with the depth of a good textbook — not a pile of bullet points.
+              Not a blank chat box. EduNotes Pro is a complete study workspace: bring your material, get a structured guide, then shape it until it works for you.
             </p>
           </Reveal>
 
@@ -461,18 +475,25 @@ export default function Landing() {
             <Reveal className="md:col-span-2" delay={0.05}>
               <div className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Wand2 className="size-5" />
+                  <UploadCloud className="size-5" />
                 </div>
-                <h3 className="font-display mt-4 text-xl font-bold tracking-tight">A teaching pipeline, not one giant prompt</h3>
+                <h3 className="font-display mt-4 text-xl font-bold tracking-tight">Start with the material you already have</h3>
                 <p className="mt-2 max-w-lg text-[13px] leading-6 text-muted-foreground">
-                  Each stage has one job. That is why the result stays coherent across five or six chapters — and why it keeps the technical terms that matter.
+                  Upload a lecture PDF, a slide deck or your own notes. Paste a reading if that’s easier. EduNotes Pro extracts the structure, preserves technical terms and shows you exactly what it read before writing a single section.
                 </p>
-                <div className="mt-6 flex flex-wrap items-center gap-2">
-                  {["Read & understand", "Map concepts", "Structure", "Teach in depth", "Design layouts"].map((stage, index) => (
-                    <span key={stage} className="flex items-center gap-2">
-                      <span className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-[11px] font-medium">{stage}</span>
-                      {index < 4 && <ChevronRight className="size-3 text-muted-foreground/40" />}
-                    </span>
+                <div className="mt-6 space-y-2">
+                  {[
+                    { name: "CS-229 Lecture 07.pdf", meta: "18 pages · extracted", color: "#3c56e0" },
+                    { name: "Week 6 — Training deep networks.pptx", meta: "14 slides · extracted", color: "#0b8f86" },
+                  ].map((file) => (
+                    <div key={file.name} className="flex items-center gap-2.5 rounded-xl border border-border/80 bg-background px-3 py-2">
+                      <span className="grid size-7 place-items-center rounded-md text-white" style={{ background: file.color }}>
+                        <FileText className="size-3.5" />
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-[11px] font-medium">{file.name}</span>
+                      <span className="text-[9px] text-muted-foreground">{file.meta}</span>
+                      <Check className="size-3.5 text-[#0b8f86]" />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -480,13 +501,15 @@ export default function Landing() {
 
             <Reveal delay={0.1}>
               <div className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-[#0b8f86]/10 text-[#0b8f86]">
                   <Layers className="size-5" />
                 </div>
-                <h3 className="font-display mt-4 text-lg font-bold tracking-tight">Nineteen ways to explain</h3>
-                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">Definitions, formulas, worked problems, timelines, comparisons, flowcharts and more.</p>
+                <h3 className="font-display mt-4 text-lg font-bold tracking-tight">Notes that teach, not summarize</h3>
+                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">
+                  Every chapter is explained from first principles, with definitions, worked examples, diagrams and practice questions where they help.
+                </p>
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
-                  {["Definition", "Formula", "Flowchart", "Solved problem", "Quiz", "Glossary", "Timeline"].map((tag) => (
+                  {["Definition", "Formula", "Flowchart", "Solved problem", "Quiz", "Glossary"].map((tag) => (
                     <span key={tag} className="rounded-md bg-muted px-2 py-1 text-[10px] font-medium text-muted-foreground">{tag}</span>
                   ))}
                 </div>
@@ -495,15 +518,16 @@ export default function Landing() {
 
             <Reveal delay={0.05}>
               <div className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Palette className="size-5" />
+                <div className="flex size-10 items-center justify-center rounded-xl bg-[#c98b22]/10 text-[#b47c12]">
+                  <LayoutDashboard className="size-5" />
                 </div>
-                <h3 className="font-display mt-4 text-lg font-bold tracking-tight">Restyle without rewriting</h3>
-                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">Six complete identities — from focused midnight to print-ready ivory. Switch whenever the mood changes.</p>
-                <div className="mt-auto flex gap-1.5 pt-5">
-                  {NOTE_THEMES.map((theme) => (
-                    <span key={theme.id} className="size-7 rounded-lg border border-black/5" style={{ background: `linear-gradient(135deg, ${theme.swatch[0]} 0%, ${theme.swatch[1]} 55%, ${theme.swatch[2]} 100%)` }} title={theme.name} />
-                  ))}
+                <h3 className="font-display mt-4 text-lg font-bold tracking-tight">Your own workspace</h3>
+                <p className="mt-1.5 text-[13px] leading-6 text-muted-foreground">
+                  Every set lives in your dashboard with its progress and edits saved. Come back after class and pick up exactly where you stopped.
+                </p>
+                <div className="mt-auto flex items-center gap-2 pt-5 text-[10px] text-muted-foreground">
+                  <span className="size-2 rounded-full bg-[#42b7a1]" /> Autosaved
+                  <span className="ml-2 size-2 rounded-full bg-[#f2bf5e]" /> Private
                 </div>
               </div>
             </Reveal>
@@ -512,15 +536,15 @@ export default function Landing() {
               <div className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
                   <div className="flex-1">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <PenLine className="size-5" />
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-[#c2553e]/10 text-[#c2553e]">
+                      <Palette className="size-5" />
                     </div>
-                    <h3 className="font-display mt-4 text-xl font-bold tracking-tight">Your notes, not a locked artifact</h3>
+                    <h3 className="font-display mt-4 text-xl font-bold tracking-tight">Restyle without rewriting</h3>
                     <p className="mt-2 max-w-md text-[13px] leading-6 text-muted-foreground">
-                      Edit any sentence inline. Drag sections into a better order. Add a definition, duplicate a solved problem, undo it all. Changes save themselves.
+                      Switch six editorial themes, change the heading voice, and adjust the page width. Typography, callouts, cards and formulas move together — your content stays exactly where you left it.
                     </p>
                   </div>
-                  <div className="w-full max-w-[280px] rounded-xl border border-border/80 bg-background p-3.5 shadow-sm">
+                  <div className="w-full max-w-[270px] rounded-xl border border-border/80 bg-background p-3.5 shadow-sm">
                     <div className="flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
                       <GripVertical className="size-3" /> Chapter 02
                       <span className="ml-auto flex gap-1">
@@ -529,12 +553,13 @@ export default function Landing() {
                       </span>
                     </div>
                     <p className="mt-2.5 text-[12px] font-semibold leading-5">
-                      Backpropagation is just the chain rule, applied efficiently.
+                      Backpropagation is the chain rule, applied efficiently.
                       <span className="ml-0.5 inline-block h-3 w-px animate-pulse bg-primary align-middle" />
                     </p>
-                    <div className="mt-2 space-y-1.5">
-                      <div className="h-1.5 w-full rounded bg-muted" />
-                      <div className="h-1.5 w-4/5 rounded bg-muted" />
+                    <div className="mt-3 flex gap-1.5">
+                      {NOTE_THEMES.map((theme) => (
+                        <span key={theme.id} className="size-5 rounded-md border border-black/5" style={{ background: `linear-gradient(135deg, ${theme.swatch[0]}, ${theme.swatch[2]})` }} title={theme.name} />
+                      ))}
                     </div>
                     <div className="mt-3 flex items-center gap-1 text-[9px] text-primary">
                       <Plus className="size-2.5" /> Add block
@@ -544,6 +569,25 @@ export default function Landing() {
               </div>
             </Reveal>
           </div>
+
+          <Reveal delay={0.05}>
+            <div className="mt-4 flex flex-col gap-4 rounded-[24px] border border-primary/15 bg-gradient-to-r from-primary/[0.06] via-card to-[#0b8f86]/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+                  <ShieldCheck className="size-4" />
+                </span>
+                <div>
+                  <p className="font-display text-base font-bold">Source-honest by design.</p>
+                  <p className="mt-1 max-w-xl text-[12px] leading-6 text-muted-foreground">
+                    Material-derived content is tagged <span className="font-semibold text-foreground">From your material</span> with a page or slide reference. Added explanations are tagged <span className="font-semibold text-foreground">AI explanation</span>, so you always know what came from where.
+                  </p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full border border-[#0b8f86]/25 bg-[#0b8f86]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#0b7a72]">
+                No silent substitutions
+              </span>
+            </div>
+          </Reveal>
         </section>
 
         {/* Themes */}
@@ -551,12 +595,12 @@ export default function Landing() {
           <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
             <Reveal className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-xl">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Designed to be read</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0b8f86]">Designed to be read</p>
                 <h2 className="font-display mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-[40px] sm:leading-[1.1]">
                   One guide. Six completely different looks.
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  Switch the theme at any moment. Typography, callout colours, cards and formula styling all move together — your content stays exactly where you left it.
+                  Switch the theme at any moment. Typography, callout colors, cards and formula styling all move together — your content stays exactly where you left it.
                 </p>
               </div>
               <span className="hidden items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1.5 text-[10px] font-medium text-muted-foreground sm:flex">
@@ -572,32 +616,35 @@ export default function Landing() {
         {/* How it works */}
         <section id="how" className="mx-auto max-w-[1180px] scroll-mt-20 px-5 py-20 sm:px-8 sm:py-24">
           <Reveal className="max-w-xl">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">How it works</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8a620e] dark:text-[#f2bf5e]">How it works</p>
             <h2 className="font-display mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-[40px] sm:leading-[1.1]">
-              From one sentence to a study session.
+              From coursework to a serious study session.
             </h2>
           </Reveal>
           <div className="mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6">
             {[
               {
                 n: "01",
-                title: "Name the topic",
-                body: "Type anything — a concept, a chapter, an exam unit. Add a custom instruction if you want a particular angle.",
+                title: "Bring your material",
+                body: "Upload slides, PDFs, Markdown or text — or paste a reading or name a topic. Check what was extracted and fix anything before you continue.",
+                color: "#3c56e0",
               },
               {
                 n: "02",
-                title: "Let it teach itself",
-                body: "The AI maps the subject, sequences chapters, then writes detailed explanations with examples, diagrams and practice.",
+                title: "Let it read and teach",
+                body: "The AI maps the structure, sequences chapters, then writes detailed explanations with examples, diagrams and practice, keeping source references intact.",
+                color: "#0b8f86",
               },
               {
                 n: "03",
-                title: "Edit, then restyle",
-                body: "Rewrite any line, reorder blocks, insert formulas, and switch between six themes until it feels right.",
+                title: "Make it yours",
+                body: "Rewrite any line, reorder blocks, insert formulas, and switch between six themes until the guide feels like something you’ll actually use.",
+                color: "#c98b22",
               },
             ].map((step, index) => (
               <Reveal key={step.n} delay={index * 0.08}>
                 <div className="relative h-full rounded-2xl border border-border/70 bg-card p-6">
-                  <span className="font-mono text-[10px] font-bold text-primary">{step.n}</span>
+                  <span className="font-mono text-[10px] font-bold" style={{ color: step.color }}>{step.n}</span>
                   <h3 className="font-display mt-3 text-base font-bold">{step.title}</h3>
                   <p className="mt-2 text-[12px] leading-6 text-muted-foreground">{step.body}</p>
                 </div>
@@ -609,15 +656,15 @@ export default function Landing() {
         {/* CTA */}
         <section className="mx-auto max-w-[1180px] px-5 pb-20 sm:px-8 sm:pb-24">
           <Reveal>
-            <div className="relative overflow-hidden rounded-[28px] border border-foreground/10 px-6 py-14 text-center sm:px-12" style={{ background: "linear-gradient(135deg, #10131c 0%, #1b2440 55%, #113c3b 100%)" }}>
-              <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(120,150,255,0.35), transparent 40%), radial-gradient(circle at 80% 70%, rgba(70,220,200,0.22), transparent 40%)" }} />
+            <div className="relative overflow-hidden rounded-[28px] border border-white/10 px-6 py-14 text-center sm:px-12" style={{ background: "linear-gradient(135deg, #101420 0%, #1a2856 52%, #0b3f3b 100%)" }}>
+              <div aria-hidden className="pointer-events-none absolute inset-0 opacity-50" style={{ backgroundImage: "radial-gradient(circle at 18% 18%, rgba(90,120,255,0.42), transparent 42%), radial-gradient(circle at 82% 72%, rgba(40,200,180,0.26), transparent 42%), radial-gradient(circle at 70% 15%, rgba(242,191,94,0.16), transparent 30%)" }} />
               <div className="relative">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#9fb2ff]">Start with one sentence</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f2bf5e]">Everything you need is already on your desk</p>
                 <h2 className="font-display mx-auto mt-4 max-w-2xl text-3xl font-extrabold leading-tight tracking-[-0.03em] text-white sm:text-[42px]">
-                  Your best study session is one topic away.
+                  Turn this week’s coursework into notes you’ll actually study.
                 </h2>
                 <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/60">
-                  Turn the thing you keep meaning to understand into notes you will actually revisit.
+                  Bring the PDF, the slide deck, or the topic you keep meaning to understand. Leave with a guide that teaches it back.
                 </p>
                 <Button size="lg" asChild className="mt-7 h-11 rounded-xl bg-white px-6 text-sm font-semibold text-[#111420] hover:bg-white/90">
                   <Link to={primaryHref}>
@@ -633,14 +680,15 @@ export default function Landing() {
 
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Logo />
-            <span className="text-[11px] text-muted-foreground">Notes for the curious.</span>
+            <span className="text-[11px] text-muted-foreground">Serious notes for serious study.</span>
           </div>
-          <div className="flex items-center gap-5 text-[11px] text-muted-foreground">
-            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
+          <div className="flex flex-wrap items-center gap-5 text-[11px] text-muted-foreground">
+            <a href="#platform" className="transition-colors hover:text-foreground">Platform</a>
             <a href="#themes" className="transition-colors hover:text-foreground">Themes</a>
             <Link to={primaryHref} className="transition-colors hover:text-foreground">Get started</Link>
+            <span className="text-muted-foreground/60">For students and learning organizations</span>
           </div>
         </div>
       </footer>

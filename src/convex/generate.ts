@@ -109,7 +109,7 @@ const BLOCK_CONTRACT = `Each block is an object with "type" and the fields that 
 - glossary: title, terms (4-8 objects {"term","definition"})
 - takeaways: title, items (3-6 strings)
 - quiz: title, pairs (3-6 objects {"front": question, "back": answer})
-Every block must include "source": "ai". Do not use markdown, bullet characters, or code fences inside plain text fields.`;
+Do not use markdown, bullet characters, or code fences inside plain text fields.`;
 
 function stripFences(raw: string) {
   return raw
@@ -198,6 +198,21 @@ function cleanList(value: unknown): string[] {
     .slice(0, 10);
 }
 
+const MAX_SOURCE_CHARS = 30000;
+
+function sourceSection(material: string) {
+  return `\n\n=== LEARNER-PROVIDED SOURCE MATERIAL ===\n${material.slice(
+    0,
+    MAX_SOURCE_CHARS,
+  )}\n=== END SOURCE MATERIAL ===\n`;
+}
+
+function sourceRule(hasMaterial: boolean) {
+  return hasMaterial
+    ? `Every block must include a "source" field. Use "source" when the content is directly derived from the learner's material, and "ai" when you are adding your own explanation, example or study aid. For a source-derived block, include "pageRef" when the material contains a page or slide marker (for example "p. 3" or "slide 4"). Never present invented information as source content.`
+    : `Every block must include "source": "ai". Do not add pageRef fields.`;
+}
+
 function cleanMermaid(value: unknown): string {
   const raw = cleanText(value)
     .replace(/^```(?:mermaid)?/i, "")
@@ -207,7 +222,7 @@ function cleanMermaid(value: unknown): string {
   return raw.slice(0, 1600);
 }
 
-function normalizeBlock(raw: unknown, keyPrefix: string): NoteBlock | null {
+function normalizeBlock(raw: unknown, keyPrefix: string, allowSource = false): NoteBlock | null {
   if (!raw || typeof raw !== "object") return null;
   const source = raw as Record<string, unknown>;
   const rawsType = cleanText(source.type).toLowerCase().replace(/[\s_-]/g, "");
@@ -215,7 +230,16 @@ function normalizeBlock(raw: unknown, keyPrefix: string): NoteBlock | null {
   if (!type) return null;
 
   const id = `${keyPrefix}-${Math.random().toString(36).slice(2, 8)}`;
-  const base: NoteBlock = { id, type: type as NoteBlock["type"], source: "ai" };
+  const rawSource = cleanText(source.source).toLowerCase();
+  const base: NoteBlock = {
+    id,
+    type: type as NoteBlock["type"],
+    source: allowSource && rawSource === "source" ? "source" : "ai",
+  };
+  if (allowSource && base.source === "source") {
+    const pageRef = cleanText(source.pageRef || source.pageref || source.reference).slice(0, 40);
+    if (pageRef) base.pageRef = pageRef;
+  }
   const title = cleanText(source.title).slice(0, 180);
   const text = cleanText(source.text).slice(0, 4000);
   if (title) base.title = title;
@@ -362,19 +386,30 @@ function detailTarget(detail: DetailLevel) {
 }
 
 const SYSTEM_PROMPT =
-  "You are NoteForge, a senior teacher and instructional designer who writes study notes that feel like a beautifully produced textbook. You explain ideas in plain language, build from first principles, use precise technical vocabulary, give concrete examples, and never pad with filler. You are rigorous about factual accuracy: if you are not sure about a specific statistic, name or date, describe the idea without inventing it. You always return valid JSON in exactly the requested shape.";
+  "You are EduNotes Pro, a senior teacher and instructional designer who writes study notes that feel like a beautifully produced textbook. You explain ideas in plain language, build from first principles, use precise technical vocabulary, give concrete examples, and never pad with filler. You are rigorous about factual accuracy: if you are not sure about a specific statistic, name or date, describe the idea without inventing it. You always return valid JSON in exactly the requested shape.";
 
-function outlinePrompt(topic: string, settings: NoteSettings, chapterCount: number) {
+function outlinePrompt(
+  topic: string,
+  settings: NoteSettings,
+  chapterCount: number,
+  material?: string,
+) {
   return `Design the structure for a comprehensive study guide.
 
 TOPIC: ${topic}
 LANGUAGE: write everything in ${settings.language}
 AUDIENCE: ${settings.audience}
-GOAL: ${settings.mode === "exam" ? "exam-oriented — prioritise definitions, comparisons, likely exam questions and mark-scheme language" : "concept-oriented — prioritise deep understanding, mental models and real-world intuition"}
+GOAL: ${settings.mode === "exam" ? "exam-oriented — prioritize definitions, comparisons, likely exam questions and mark-scheme language" : "concept-oriented — prioritize deep understanding, mental models and real-world intuition"}
 DEPTH: ${settings.detail} (build ${chapterCount} chapters)
 ${settings.customInstruction ? `LEARNER'S CUSTOM INSTRUCTION: ${settings.customInstruction}` : ""}
 
-Create ${chapterCount} chapters that together cover the topic completely, from foundations to application. Each chapter needs a clear theme, 4-7 concrete subtopics, and 3-6 technical key terms. Avoid overlap between chapters and make sure the sequence teaches prerequisites before dependents.
+${
+    material
+      ? `The learner has supplied their own source material below. Build the chapter map exclusively from that material: cover every major section, preserve its technical terms and examples, and do not silently drop topics. You may add connective explanation, but do not invent facts that are not supported by the material.${sourceSection(
+          material,
+        )}`
+      : `Create ${chapterCount} chapters that together cover the topic completely, from foundations to application. Each chapter needs a clear theme, 4-7 concrete subtopics, and 3-6 technical key terms. Avoid overlap between chapters and make sure the sequence teaches prerequisites before dependents.`
+  }
 
 Return ONLY this JSON:
 {
@@ -399,6 +434,7 @@ function chapterPrompt(
   chapter: OutlineChapter,
   index: number,
   settings: NoteSettings,
+  material?: string,
 ) {
   const target = detailTarget(settings.detail);
   const layouts = [
@@ -438,6 +474,13 @@ AUDIENCE: ${settings.audience}
 LANGUAGE: ${settings.language}
 GOAL: ${settings.mode === "exam" ? "exam-oriented; include definitions, comparisons and likely exam questions" : "concept-oriented; build intuition, then precision"}
 ${settings.customInstruction ? `LEARNER'S CUSTOM INSTRUCTION: ${settings.customInstruction}` : ""}
+${
+  material
+    ? `SOURCE MATERIAL: the learner supplied the material below. Teach the parts that belong to this chapter, preserve its terminology and examples, and do not drop important details. Any fact you add beyond the material must be clearly tagged as your own explanation.${sourceSection(
+        material,
+      )}`
+    : ""
+}
 
 THE FULL CHAPTER MAP (for continuity, do not repeat other chapters):
 ${outline.chapters.map((item, i) => `${i + 1}. ${item.title} — ${item.summary}`).join("\n")}
@@ -456,11 +499,12 @@ Write ${target.blocks} blocks and AT LEAST ${target.words.split("-")[0]} words o
 8. Write for real understanding: define, explain, illustrate, then check. No filler like 'In this chapter we will explore'.
 
 ${BLOCK_CONTRACT}
+${sourceRule(Boolean(material))}
 
 Return ONLY JSON: {"blocks": [ ... ]}`;
 }
 
-function closingPrompt(topic: string, outline: Outline, settings: NoteSettings) {
+function closingPrompt(topic: string, outline: Outline, settings: NoteSettings, material?: string) {
   return `Write the final revision chapter for a study guide on "${topic}".
 LANGUAGE: ${settings.language}
 AUDIENCE: ${settings.audience}
@@ -475,6 +519,11 @@ ${settings.practice ? '- quiz: 4 exam-style questions with full answers, mixing 
 ${settings.mode === "exam" ? '- callout with tone "examTip" and practical exam strategy.' : ""}
 
 No new topics. Every fact must already appear in the chapter map.
+${
+  material
+    ? "When a revision item refers directly to the learner's material, tag it with source: \"source\" and a pageRef if you have one. Otherwise source: \"ai\"."
+    : "Every block must use source: \"ai\"."
+}
 
 ${BLOCK_CONTRACT}
 
@@ -488,7 +537,7 @@ export const generate = action({
     if (!userId) throw new Error("Please sign in to generate notes.");
 
     const project = await ctx.runQuery(internal.notes.getOwned, { id, userId });
-    if (!project) throw new Error("That study set is not available.");
+    if (!project) throw new Error("Those notes are not available.");
 
     const claimed = await ctx.runMutation(internal.notes.claimGeneration, { id });
     if (!claimed) {
@@ -498,6 +547,16 @@ export const generate = action({
 
     const settings = project.settings as NoteSettings;
     const topic = project.topic;
+    const sourceMaterial = (project.sourceMaterial ?? "").trim();
+    const material = sourceMaterial.slice(0, MAX_SOURCE_CHARS);
+    const sourceWasTruncated = sourceMaterial.length > MAX_SOURCE_CHARS;
+    const hasMaterial = material.length > 0;
+    const warnings: string[] = [];
+    if (sourceWasTruncated) {
+      warnings.push(
+        `Your material was longer than ${MAX_SOURCE_CHARS.toLocaleString()} characters, so the guide used the first portion. For full coverage, trim the material to the sections you need.`,
+      );
+    }
     const chapterCount =
       DETAIL_LEVELS.find((level) => level.id === settings.detail)?.chapters ?? 5;
 
@@ -508,7 +567,7 @@ export const generate = action({
       await update({
         status: "generating",
         stage: "reading",
-        stageDetail: "Reading and scoping your topic",
+        stageDetail: hasMaterial ? "Reading your material" : "Reading and scoping your topic",
         progress: 5,
         error: undefined,
         blocks: [],
@@ -524,7 +583,7 @@ export const generate = action({
 
       const outline = await completeJson<Outline>(
         SYSTEM_PROMPT,
-        outlinePrompt(topic, settings, chapterCount),
+        outlinePrompt(topic, settings, chapterCount, material || undefined),
         2200,
       );
 
@@ -561,7 +620,6 @@ export const generate = action({
       };
       await update({ appendBlocks: [hero], progress: 24 });
 
-      const warnings: string[] = [];
       const collected: NoteBlock[] = [];
       const writtenChapters = new Set<string>();
 
@@ -577,13 +635,13 @@ export const generate = action({
         try {
           const result = await completeJson<{ blocks?: unknown[] }>(
             SYSTEM_PROMPT,
-            chapterPrompt(topic, outline, chapter, index, settings),
+            chapterPrompt(topic, outline, chapter, index, settings, material || undefined),
             settings.detail === "comprehensive" ? 5000 : 4000,
           );
           const rawBlocks = Array.isArray(result.blocks) ? result.blocks : [];
           const blocks = rawBlocks
             .map((block, blockIndex) =>
-              normalizeBlock(block, `c${index + 1}b${blockIndex}`),
+              normalizeBlock(block, `c${index + 1}b${blockIndex}`, hasMaterial),
             )
             .filter((block): block is NoteBlock => block !== null);
 
@@ -644,11 +702,11 @@ export const generate = action({
       try {
         const closing = await completeJson<{ blocks?: unknown[] }>(
           SYSTEM_PROMPT,
-          closingPrompt(topic, outline, settings),
+          closingPrompt(topic, outline, settings, material || undefined),
           2600,
         );
         const closingBlocks = (Array.isArray(closing.blocks) ? closing.blocks : [])
-          .map((block, index) => normalizeBlock(block, `close${index}`))
+          .map((block, index) => normalizeBlock(block, `close${index}`, hasMaterial))
           .filter((block): block is NoteBlock => block !== null);
         if (closingBlocks.length) {
           collected.push(...closingBlocks);
@@ -672,6 +730,11 @@ export const generate = action({
         .map((chapter) => chapter.title);
       if (missing.length) {
         warnings.push(`These chapters need another pass: ${missing.join(", ")}.`);
+      }
+      if (hasMaterial && !collected.some((block) => block.source === "source")) {
+        warnings.push(
+          "This guide was written from your material, but no blocks received a direct source tag. Check each section against your original before relying on it.",
+        );
       }
 
       await update({
