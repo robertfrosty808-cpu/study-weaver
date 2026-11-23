@@ -65,7 +65,7 @@ export function BlockPreview({ block, onUpdateBlock }: Props) {
         minHeight: "3em",
         border: "1px solid rgba(0,0,0,0.8)",
         borderRight: "1px solid rgba(255,255,255,0.8)",
-        cursor: (isMounted ? null)[prev ? "cursor"] : "auto",
+        cursor: "auto",
         padding: 14,
       }}
     >
