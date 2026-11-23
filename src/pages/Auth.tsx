@@ -110,7 +110,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <span className="rounded-md bg-[#f2bf5e] px-1.5 py-[3px] font-display text-[8px] font-extrabold uppercase tracking-[0.14em] text-[#1b1a16]">Pro</span>
         </Link>
 
-        <div className="relative mt-auto max-w-md pb-6">
+        <div className="relative mt-auto max-w-md pb-6" data-reveal>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[10px] font-medium text-white/70">
             <Sparkles className="size-3 text-[#f2bf5e]" />
             Premium study workspace
@@ -161,7 +161,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <ThemeToggle />
         </div>
 
-        <div className="flex flex-1 items-center justify-center px-5 pb-14 sm:px-8">
+        <div className="flex flex-1 items-center justify-center px-5 pb-14 sm:px-8" data-reveal>
           <div className="w-full max-w-[400px]">
             <div className="mb-7 lg:hidden">
               <Link to="/" className="inline-flex items-center gap-2">

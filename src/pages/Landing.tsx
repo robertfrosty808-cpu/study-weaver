@@ -1,4 +1,6 @@
 import { Logo } from "@/components/brand/Logo";
+import { HeroFluid } from "@/components/effects/HeroFluid";
+import { Magnetic } from "@/components/effects/Magnetic";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Formula } from "@/components/notes/Formula";
@@ -301,6 +303,8 @@ function ThemePreview() {
             type="button"
             onClick={() => setThemeId(item.id)}
             aria-pressed={themeId === item.id}
+            data-tilt="4"
+            data-spotlight
             className={cn(
               "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-all",
               themeId === item.id ? "border-primary/50 bg-primary/5 shadow-sm" : "border-border/80 bg-card hover:border-border hover:bg-muted/40",
@@ -395,11 +399,15 @@ export default function Landing() {
 
       <main>
         {/* Hero */}
-        <section className="relative">
+        <section className="relative overflow-hidden">
           <div aria-hidden className="paper-grid pointer-events-none absolute inset-0" />
-          <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 h-[460px] w-[980px] -translate-x-1/2 rounded-full opacity-60 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(60,86,224,0.16), rgba(11,143,134,0.08) 45%, transparent 70%)" }} />
-          <div aria-hidden className="pointer-events-none absolute right-0 top-40 size-40 rounded-full bg-[#f2bf5e]/15 blur-3xl" />
-          <div className="relative mx-auto grid max-w-[1180px] items-center gap-14 px-5 pb-16 pt-14 sm:px-8 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:pb-24 lg:pt-20">
+          <div aria-hidden className="hero-mesh">
+            <span className="hero-mesh__blob hero-mesh__blob--violet" />
+            <span className="hero-mesh__blob hero-mesh__blob--cyan" />
+            <span className="hero-mesh__blob hero-mesh__blob--gold" />
+          </div>
+          <HeroFluid />
+          <div className="relative z-10 mx-auto grid max-w-[1180px] items-center gap-14 px-5 pb-16 pt-14 sm:px-8 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:pb-24 lg:pt-20">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
               <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-3 py-1.5 text-[11px] font-medium text-muted-foreground shadow-sm">
                 <span className="flex size-4 items-center justify-center rounded-full bg-[#f2bf5e]/20 text-[#b47c12]">
@@ -415,12 +423,14 @@ export default function Landing() {
                 EduNotes Pro reads your lecture slides, readings and course notes — then writes a structured, deeply explained study guide. Edit every line, restyle it in a click, and keep it in your own workspace.
               </p>
               <div className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:items-center">
-                <Button size="lg" asChild className="h-11 rounded-xl px-5 text-sm font-semibold shadow-sm">
-                  <Link to={primaryHref}>
-                    {primaryLabel}
-                    <ArrowRight className="ml-2 size-4" />
-                  </Link>
-                </Button>
+                <Magnetic className="inline-flex">
+                  <Button size="lg" asChild className="h-11 rounded-xl px-5 text-sm font-semibold shadow-sm">
+                    <Link to={primaryHref}>
+                      {primaryLabel}
+                      <ArrowRight className="ml-2 size-4" />
+                    </Link>
+                  </Button>
+                </Magnetic>
                 <Button size="lg" variant="outline" asChild className="h-11 rounded-xl px-5 text-sm">
                   <a href="#themes">
                     Explore the themes
@@ -443,7 +453,7 @@ export default function Landing() {
 
         {/* Proof strip */}
         <section className="border-y border-border/60 bg-card/50">
-          <div className="mx-auto grid max-w-[1180px] grid-cols-2 divide-x divide-border/60 px-5 sm:grid-cols-4 sm:px-8">
+          <div data-reveal className="mx-auto grid max-w-[1180px] grid-cols-2 divide-x divide-border/60 px-5 sm:grid-cols-4 sm:px-8">
             {[
               { value: "PDF · PPTX", label: "and pasted material", tone: "#3c56e0" },
               { value: "19", label: "visual block types", tone: "#0b8f86" },
@@ -473,7 +483,7 @@ export default function Landing() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             <Reveal className="md:col-span-2" delay={0.05}>
-              <div className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
+              <div data-spotlight className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <UploadCloud className="size-5" />
                 </div>
@@ -500,7 +510,7 @@ export default function Landing() {
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
+              <div data-spotlight className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#0b8f86]/10 text-[#0b8f86]">
                   <Layers className="size-5" />
                 </div>
@@ -517,7 +527,7 @@ export default function Landing() {
             </Reveal>
 
             <Reveal delay={0.05}>
-              <div className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
+              <div data-spotlight className="soft-card lift flex h-full flex-col rounded-[24px] p-6">
                 <div className="flex size-10 items-center justify-center rounded-xl bg-[#c98b22]/10 text-[#b47c12]">
                   <LayoutDashboard className="size-5" />
                 </div>
@@ -533,7 +543,7 @@ export default function Landing() {
             </Reveal>
 
             <Reveal className="md:col-span-2" delay={0.1}>
-              <div className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
+              <div data-spotlight className="soft-card lift h-full rounded-[24px] p-6 sm:p-8">
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
                   <div className="flex-1">
                     <div className="flex size-10 items-center justify-center rounded-xl bg-[#c2553e]/10 text-[#c2553e]">
@@ -571,7 +581,7 @@ export default function Landing() {
           </div>
 
           <Reveal delay={0.05}>
-            <div className="mt-4 flex flex-col gap-4 rounded-[24px] border border-primary/15 bg-gradient-to-r from-primary/[0.06] via-card to-[#0b8f86]/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+            <div data-spotlight className="mt-4 flex flex-col gap-4 rounded-[24px] border border-primary/15 bg-gradient-to-r from-primary/[0.06] via-card to-[#0b8f86]/[0.06] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
                   <ShieldCheck className="size-4" />
@@ -607,7 +617,7 @@ export default function Landing() {
                 <PenLine className="size-3" /> Live preview
               </span>
             </Reveal>
-            <div className="mt-8">
+            <div data-reveal className="mt-8">
               <ThemePreview />
             </div>
           </div>
@@ -643,7 +653,7 @@ export default function Landing() {
               },
             ].map((step, index) => (
               <Reveal key={step.n} delay={index * 0.08}>
-                <div className="relative h-full rounded-2xl border border-border/70 bg-card p-6">
+                <div data-spotlight className="relative h-full rounded-2xl border border-border/70 bg-card p-6">
                   <span className="font-mono text-[10px] font-bold" style={{ color: step.color }}>{step.n}</span>
                   <h3 className="font-display mt-3 text-base font-bold">{step.title}</h3>
                   <p className="mt-2 text-[12px] leading-6 text-muted-foreground">{step.body}</p>
@@ -666,12 +676,14 @@ export default function Landing() {
                 <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-white/60">
                   Bring the PDF, the slide deck, or the topic you keep meaning to understand. Leave with a guide that teaches it back.
                 </p>
-                <Button size="lg" asChild className="mt-7 h-11 rounded-xl bg-white px-6 text-sm font-semibold text-[#111420] hover:bg-white/90">
-                  <Link to={primaryHref}>
-                    {primaryLabel}
-                    <ArrowRight className="ml-2 size-4" />
-                  </Link>
-                </Button>
+                <Magnetic className="mt-7 inline-flex">
+                  <Button size="lg" asChild className="h-11 rounded-xl bg-white px-6 text-sm font-semibold text-[#111420] hover:bg-white/90">
+                    <Link to={primaryHref}>
+                      {primaryLabel}
+                      <ArrowRight className="ml-2 size-4" />
+                    </Link>
+                  </Button>
+                </Magnetic>
               </div>
             </div>
           </Reveal>
@@ -679,7 +691,7 @@ export default function Landing() {
       </main>
 
       <footer className="border-t border-border/60">
-        <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div data-reveal className="mx-auto flex max-w-[1180px] flex-col gap-4 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <div className="flex flex-wrap items-center gap-3">
             <Logo />
             <span className="text-[11px] text-muted-foreground">Serious notes for serious study.</span>

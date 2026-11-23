@@ -420,7 +420,272 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   Interactive layer: cursor, hero mesh, card spotlight/tilt, upload feedback
+   -------------------------------------------------------------------------- */
+
+/* Lenis takes over wheel scrolling only after it has mounted. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Violet-cyan card spotlight and gradient edge, driven by --spot-x / --spot-y. */
+[data-spotlight] {
+  position: relative;
+  isolation: isolate;
+}
+[data-spotlight]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(
+    280px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(139, 92, 246, 0.13),
+    rgba(34, 211, 238, 0.055) 42%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+[data-spotlight]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(167, 139, 250, 0.9),
+    rgba(34, 211, 238, 0.42) 38%,
+    transparent 72%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+[data-spotlight][data-spotlight-active="true"]::before,
+[data-spotlight][data-spotlight-active="true"]::after {
+  opacity: 1;
+}
+
+/* Subtle 3D tilt for theme presets and other non-Framer cards. */
+[data-tilt] {
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+[data-tilt][data-tilt-active="true"] {
+  transition-duration: 80ms;
+}
+
+/* Scroll reveal, observed once per element by the effects layer. */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1), transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+[data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Slow, transform-only colour mesh behind the hero ripple canvas. */
+.hero-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-mesh__blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(72px);
+  opacity: 0.42;
+  will-change: transform;
+  animation: mesh-drift-a 22s ease-in-out infinite alternate;
+}
+.hero-mesh__blob--violet {
+  left: -8%;
+  top: -18%;
+  width: 48%;
+  height: 92%;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.38), transparent 68%);
+}
+.hero-mesh__blob--cyan {
+  right: -4%;
+  top: 8%;
+  width: 44%;
+  height: 74%;
+  background: radial-gradient(ellipse, rgba(34, 211, 238, 0.3), transparent 68%);
+  animation-name: mesh-drift-b;
+  animation-duration: 26s;
+}
+.hero-mesh__blob--gold {
+  left: 30%;
+  bottom: -30%;
+  width: 40%;
+  height: 70%;
+  background: radial-gradient(ellipse, rgba(242, 191, 94, 0.2), transparent 70%);
+  animation-name: mesh-drift-c;
+  animation-duration: 30s;
+}
+.dark .hero-mesh__blob {
+  opacity: 0.34;
+}
+@keyframes mesh-drift-a {
+  from {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(7%, 5%, 0) scale(1.12);
+  }
+}
+@keyframes mesh-drift-b {
+  from {
+    transform: translate3d(4%, 2%, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(-7%, -4%, 0) scale(0.96);
+  }
+}
+@keyframes mesh-drift-c {
+  from {
+    transform: translate3d(-2%, 3%, 0) scale(0.98);
+  }
+  to {
+    transform: translate3d(5%, -5%, 0) scale(1.1);
+  }
+}
+
+/* Upload drop feedback. The ring is transform/opacity only. */
+.upload-dropzone {
+  position: relative;
+  isolation: isolate;
+}
+.upload-dropzone[data-dragging="true"] {
+  border-color: rgba(139, 92, 246, 0.62);
+  background-color: color-mix(in oklab, #8b5cf6 5%, transparent);
+}
+.upload-dropzone::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(110deg, #8b5cf6, #22d3ee, #8b5cf6);
+  background-size: 180% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.upload-dropzone[data-dragging="true"]::before {
+  opacity: 1;
+  animation: upload-border-pulse 1.35s ease-in-out infinite;
+}
+@keyframes upload-border-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.drop-ripple {
+  position: absolute;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  margin-top: -14px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(167, 139, 250, 0.72);
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.32), inset 0 0 18px rgba(139, 92, 246, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: drop-ripple 780ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes drop-ripple {
+  0% {
+    transform: scale(0.25);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(12);
+    opacity: 0;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  [data-spotlight]::before,
+  [data-spotlight]::after {
+    display: none;
+  }
+  [data-tilt] {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-mesh__blob {
+    filter: blur(58px);
+    opacity: 0.3;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+  [data-tilt] {
+    transform: none;
+  }
+  [data-spotlight]::before,
+  [data-spotlight]::after {
+    display: none;
+  }
+  .hero-mesh__blob {
+    animation: none;
+  }
+  .upload-dropzone[data-dragging="true"]::before {
+    animation: none;
+    opacity: 0.8;
+  }
+  .drop-ripple {
+    animation: none;
+    opacity: 0;
+  }
   *,
   *::before,
   *::after {

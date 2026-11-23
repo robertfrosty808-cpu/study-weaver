@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/AppShell";
+import { Magnetic } from "@/components/effects/Magnetic";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
+import { useFinePointer, useReducedMotionPreference } from "@/hooks/use-motion-preference";
 import {
   AUDIENCES,
   DEFAULT_SETTINGS,
@@ -41,7 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "convex/react";
 import { formatDistanceToNow } from "date-fns";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useSpring } from "framer-motion";
 import {
   AlertCircle,
   ArrowRight,
@@ -65,7 +67,7 @@ import {
   Wand2,
   X,
 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -99,6 +101,12 @@ interface MaterialUpload {
   text?: string;
 }
 
+interface DropRipple {
+  id: number;
+  x: number;
+  y: number;
+}
+
 function ProjectCard({
   project,
   onDelete,
@@ -123,6 +131,34 @@ function ProjectCard({
   const theme = NOTE_THEMES.find((item) => item.id === project.theme) ?? NOTE_THEMES[0];
   const isReady = project.status === "ready";
   const isError = project.status === "error";
+  const finePointer = useFinePointer();
+  const reducedMotion = useReducedMotionPreference();
+  const tiltEnabled = finePointer && !reducedMotion;
+  const rotateX = useSpring(0, { stiffness: 280, damping: 24 });
+  const rotateY = useSpring(0, { stiffness: 280, damping: 24 });
+  const tiltFrame = useRef(0);
+
+  const onTiltMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (!tiltEnabled) return;
+    const element = event.currentTarget;
+    const { clientX, clientY } = event;
+    if (tiltFrame.current) cancelAnimationFrame(tiltFrame.current);
+    tiltFrame.current = requestAnimationFrame(() => {
+      const rect = element.getBoundingClientRect();
+      const px = (clientX - rect.left) / Math.max(rect.width, 1) - 0.5;
+      const py = (clientY - rect.top) / Math.max(rect.height, 1) - 0.5;
+      rotateX.set(-py * 4);
+      rotateY.set(px * 4);
+      tiltFrame.current = 0;
+    });
+  };
+
+  const resetTilt = () => {
+    if (tiltFrame.current) cancelAnimationFrame(tiltFrame.current);
+    tiltFrame.current = 0;
+    rotateX.set(0);
+    rotateY.set(0);
+  };
 
   return (
     <motion.article
@@ -130,8 +166,13 @@ function ProjectCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
+      whileHover={tiltEnabled ? { y: -2 } : undefined}
       transition={{ duration: 0.28 }}
-      className="group relative rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgb(20_22_40/0.04)] transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[0_18px_40px_-24px_rgb(20_22_40/0.28)]"
+      style={{ rotateX, rotateY, transformPerspective: 900, transformStyle: "preserve-3d" }}
+      onPointerMove={onTiltMove}
+      onPointerLeave={resetTilt}
+      data-spotlight
+      className="group relative rounded-2xl border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgb(20_22_40/0.04)] transition-colors duration-300 hover:border-primary/25 hover:shadow-[0_18px_40px_-24px_rgb(20_22_40/0.28)] will-change-transform"
     >
       <div className={cn("note-canvas relative h-[116px] overflow-hidden rounded-xl border", theme.className)} style={{ borderColor: "var(--np-border)" }}>
         <div className="p-4">
@@ -220,6 +261,7 @@ export default function Dashboard() {
   const [materialTitle, setMaterialTitle] = useState("");
   const [uploads, setUploads] = useState<MaterialUpload[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [dropRipples, setDropRipples] = useState<DropRipple[]>([]);
   const [settings, setSettings] = useState<NoteSettings>(DEFAULT_SETTINGS);
   const [theme, setTheme] = useState("midnight");
   const [search, setSearch] = useState("");
@@ -391,7 +433,7 @@ export default function Dashboard() {
     <AppShell>
       <TooltipProvider delayDuration={300}>
         <div className="mx-auto w-full max-w-[1180px] px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
-          <header className="relative">
+          <header className="relative" data-reveal>
             <div aria-hidden className="pointer-events-none absolute -left-16 -top-24 size-56 rounded-full bg-primary/10 blur-3xl" />
             <div aria-hidden className="pointer-events-none absolute right-10 top-0 size-32 rounded-full bg-[#0e9488]/10 blur-3xl" />
             <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -416,8 +458,8 @@ export default function Dashboard() {
           </header>
 
           {/* Composer */}
-          <section id="compose" className="mt-7 scroll-mt-24">
-            <div className="relative overflow-hidden rounded-[22px] border border-border/80 bg-card shadow-[0_2px_4px_rgb(20_22_40/0.03),0_24px_60px_-40px_rgb(20_22_40/0.35)]">
+          <section id="compose" className="mt-7 scroll-mt-24" data-reveal>
+            <div data-spotlight className="relative overflow-hidden rounded-[22px] border border-border/80 bg-card shadow-[0_2px_4px_rgb(20_22_40/0.03),0_24px_60px_-40px_rgb(20_22_40/0.35)]">
               <div className="brand-gradient absolute inset-x-0 top-0 h-[3px]" />
               <div className="p-4 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -528,25 +570,44 @@ export default function Dashboard() {
                           event.preventDefault();
                           setDragActive(true);
                         }}
-                        onDragLeave={() => setDragActive(false)}
+                        onDragLeave={(event) => {
+                          if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragActive(false);
+                        }}
                         onDrop={(event) => {
                           event.preventDefault();
                           setDragActive(false);
+                          const rect = event.currentTarget.getBoundingClientRect();
+                          const ripple: DropRipple = {
+                            id: Date.now(),
+                            x: event.clientX - rect.left,
+                            y: event.clientY - rect.top,
+                          };
+                          setDropRipples((previous) => [...previous.slice(-3), ripple]);
                           void handleFiles(event.dataTransfer.files);
                         }}
+                        data-dragging={dragActive}
                         className={cn(
-                          "flex flex-col items-center justify-between gap-3 rounded-xl border-2 border-dashed p-4 text-center transition-colors sm:flex-row sm:text-left",
+                          "upload-dropzone flex flex-col items-center justify-between gap-3 overflow-hidden rounded-xl border-2 border-dashed p-4 text-center transition-colors sm:flex-row sm:text-left",
                           dragActive
                             ? "border-primary bg-primary/5"
                             : "border-border/80 bg-gradient-to-r from-primary/[0.04] via-transparent to-[#0e9488]/[0.05]",
                         )}
                       >
+                        {dropRipples.map((ripple) => (
+                          <span
+                            key={ripple.id}
+                            aria-hidden
+                            className="drop-ripple"
+                            style={{ left: ripple.x, top: ripple.y }}
+                            onAnimationEnd={() => setDropRipples((previous) => previous.filter((entry) => entry.id !== ripple.id))}
+                          />
+                        ))}
                         <div className="flex flex-col items-center gap-3 sm:flex-row">
-                          <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                          <span className={cn("grid size-10 place-items-center rounded-xl bg-primary/10 text-primary transition-transform duration-300", dragActive && "scale-110")}>
                             <UploadCloud className="size-5" />
                           </span>
                           <div>
-                            <p className="text-sm font-semibold">Drop your course material here</p>
+                            <p className="text-sm font-semibold">{dragActive ? "Drop to read your material" : "Drop your course material here"}</p>
                             <p className="mt-0.5 text-[11px] text-muted-foreground">
                               PDF, PowerPoint, Markdown or text · up to 25 MB each · max 8 files
                             </p>
@@ -629,6 +690,7 @@ export default function Dashboard() {
                         </div>
                         <Textarea
                           id="material-text"
+                          data-lenis-prevent
                           value={materialText}
                           onChange={(event) => {
                             setMaterialText(event.target.value.slice(0, MAX_MATERIAL_CHARS));
@@ -728,10 +790,12 @@ export default function Dashboard() {
                         Example
                       </Button>
                     )}
-                    <Button type="button" onClick={forge} disabled={busy || (mode === "material" && isExtracting)} className="h-9 rounded-lg px-4 text-[13px] font-semibold shadow-sm">
-                      {busy || (mode === "material" && isExtracting) ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Sparkles className="mr-2 size-4" />}
-                      {mode === "material" && isExtracting ? "Reading files…" : "Create notes"}
-                    </Button>
+                    <Magnetic className="inline-flex">
+                      <Button type="button" onClick={forge} disabled={busy || (mode === "material" && isExtracting)} className="h-9 rounded-lg px-4 text-[13px] font-semibold shadow-sm">
+                        {busy || (mode === "material" && isExtracting) ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Sparkles className="mr-2 size-4" />}
+                        {mode === "material" && isExtracting ? "Reading files…" : "Create notes"}
+                      </Button>
+                    </Magnetic>
                   </div>
                 </div>
 
@@ -849,7 +913,7 @@ export default function Dashboard() {
           </section>
 
           {/* Notes library */}
-          <section id="projects" className="mt-12 scroll-mt-24">
+          <section id="projects" className="mt-12 scroll-mt-24" data-reveal>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="font-display text-xl font-bold tracking-tight">Your notes</h2>
@@ -878,7 +942,7 @@ export default function Dashboard() {
                 ))}
               </div>
             ) : projects.length === 0 ? (
-              <div className="mt-5 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
+              <div data-spotlight className="mt-5 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
                 <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/8 text-primary">
                   <FileText className="size-5" />
                 </div>
@@ -891,7 +955,7 @@ export default function Dashboard() {
                 </Button>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="mt-5 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-10 text-center">
+              <div data-spotlight className="mt-5 rounded-2xl border border-dashed border-border bg-card/50 px-6 py-10 text-center">
                 <p className="text-sm font-semibold">No matches for “{search}”</p>
                 <p className="mt-1 text-xs text-muted-foreground">Try a different title or subject.</p>
               </div>
@@ -906,7 +970,7 @@ export default function Dashboard() {
             )}
           </section>
 
-          <section className="mt-14 border-t border-border/60 pt-8">
+          <section className="mt-14 border-t border-border/60 pt-8" data-reveal>
             <div className="grid gap-6 sm:grid-cols-3">
               {[
                 { step: "01", title: "Bring what you have", text: "Upload slides and readings, paste your notes, or simply name a topic." },

@@ -57,7 +57,7 @@ export function RequireAuth({
 
     return (
       <main className="flex min-h-screen items-center justify-center bg-background p-6">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md" data-spotlight>
           <CardHeader className="text-center">
             <div className="flex justify-center">
               <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted">

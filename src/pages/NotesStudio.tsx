@@ -188,6 +188,7 @@ function GenerationScreen({ project }: { project: ProjectDoc }) {
 
           <div
             ref={previewRef}
+            data-lenis-prevent
             className={cn(
               "note-canvas scrollbar-thin max-h-[74vh] overflow-y-auto rounded-[24px] border p-4 sm:p-7",
               theme.className,
@@ -601,7 +602,7 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
                   <span className="hidden md:inline">Insert</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="max-h-[70vh] w-60 overflow-y-auto">
+              <DropdownMenuContent align="end" data-lenis-prevent className="max-h-[70vh] w-60 overflow-y-auto">
                 <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
                   Add a block
                 </DropdownMenuLabel>
@@ -747,7 +748,7 @@ function NotesEditor({ project }: { project: ProjectDoc }) {
       )}
 
       <div className="mx-auto flex max-w-[1500px] items-start">
-        <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[236px] shrink-0 overflow-y-auto border-r border-border/60 p-5 xl:block">
+        <aside data-lenis-prevent className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[236px] shrink-0 overflow-y-auto border-r border-border/60 p-5 xl:block">
           {toc}
         </aside>
 
@@ -947,7 +948,7 @@ function BlockInsertMenu({
           </button>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="max-h-[65vh] w-56 overflow-y-auto">
+      <DropdownMenuContent align={align} data-lenis-prevent className="max-h-[65vh] w-56 overflow-y-auto">
         <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
           Insert block
         </DropdownMenuLabel>
